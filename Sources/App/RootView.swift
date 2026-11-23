@@ -36,12 +36,12 @@ struct RootView: View {
         .tabViewStyle(.sidebarAdaptable)
         .tabBarMinimizeBehavior(.onScrollDown)
         .sheet(isPresented: $showingSettings) {
-            SettingsPlaceholder()
+            SettingsView()
         }
     }
 }
 
-/// Home's header: the Tellio name and the Settings gear. The rows come in stage 3.
+/// Home's header: the Tellio name and the Settings gear. The rows come later in stage 3.
 private struct HomePlaceholder: View {
     let showSettings: () -> Void
 
@@ -89,34 +89,6 @@ private struct ScreenPlaceholder: View {
             }
             .appBackground()
             .navigationTitle(title)
-        }
-    }
-}
-
-/// Settings opens as a sheet from the gear. The real lists come in stage 3.
-private struct SettingsPlaceholder: View {
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 6) {
-                    SectionHeader("Accounts")
-                    Text("Connections, backup and restore")
-                        .foregroundStyle(.secondary)
-                        .padding(16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .glassPanel(cornerRadius: 18)
-                }
-                .padding(.horizontal, 16)
-            }
-            .appBackground()
-            .navigationTitle("Settings")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done", systemImage: "checkmark") { dismiss() }
-                }
-            }
         }
     }
 }

@@ -6,6 +6,8 @@ import SwiftUI
 enum Theme {
     /// The page background that hero artwork fades into.
     static let base = Color(red: 0.055, green: 0.065, blue: 0.09)
+    /// Dark text on white cards and tiles.
+    static let ink = Color(red: 0.08, green: 0.08, blue: 0.1)
     static let live = Color(red: 1, green: 0.3, blue: 0.3)
     static let good = Color(red: 0.29, green: 0.87, blue: 0.5)
     static let warning = Color(red: 1, green: 0.75, blue: 0.3)
