@@ -1,3 +1,4 @@
 version: 1
 bundleID: com.mauro.tellio.ios
 infoPath: Config/Info.plist
+iconPath: Resources/AppIcon.png

@@ -359,6 +359,9 @@ struct LiveTVView: View {
                 toggle(channel.id, inFolder: folder.id)
             }
         }
+        Button("Add to Multiview", systemImage: "rectangle.split.2x1") {
+            MultiviewStore.shared.add(channel, pickNext: true)
+        }
         Button("Rename…", systemImage: "pencil") {
             newName = channel.name
             renaming = channel

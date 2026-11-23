@@ -177,6 +177,12 @@ struct PlayerScreen: View {
             .padding(.top, 4)
             Spacer(minLength: 8)
             tracksMenu
+            if let channel = request?.live?.channel {
+                roundButton("rectangle.split.2x1", label: "Multiview") {
+                    finish()
+                    MultiviewStore.shared.add(channel, after: .milliseconds(600), pickNext: true)
+                }
+            }
             if pip.isPossible {
                 roundButton("pip.enter", label: "Picture in picture") { pip.toggle() }
             }

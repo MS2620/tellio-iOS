@@ -45,6 +45,15 @@ enum SystemPlayer {
             session.request = request
             return
         }
+        // One thing at a time: leave multiview (freeing its connections) before the player opens.
+        if MultiviewStore.shared.isShowing {
+            MultiviewStore.shared.close()
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(600))
+                present(request)
+            }
+            return
+        }
         guard let top = topController() else { return }
         session.request = request
         let controller = PlayerHostingController(rootView: AnyView(
@@ -102,7 +111,7 @@ enum SystemPlayer {
         }
     }
 
-    fileprivate static func topController() -> UIViewController? {
+    static func topController() -> UIViewController? {
         guard let scene = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
                 .first(where: { $0.activationState == .foregroundActive }),

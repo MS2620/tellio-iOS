@@ -42,6 +42,8 @@ let package = Package(
                 // Build output: the last built app holds the engine's resource files, which
                 // would otherwise be read back in as this target's resources.
                 "xtool",
+                // The app icon, which xtool adds to the app itself.
+                "Resources",
             ],
             sources: [
                 "\(shared)/Sources/Core",
