@@ -19,7 +19,7 @@ struct SettingsView: View {
                 SettingsGroup("Accounts") {
                     SettingsLink(title: "Connections", subtitle: "IPTV, addons, Trakt, TMDB", icon: "link",
                                  value: connectionCount) {
-                        ComingSoonPage(title: "Connections")
+                        ConnectionsView()
                     }
                     SettingsLink(title: "Backup & restore", icon: "externaldrive",
                                  value: backup.isConfigured ? "Ready" : "Set up") {

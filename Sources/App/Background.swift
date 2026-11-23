@@ -9,6 +9,8 @@ enum Theme {
     /// Dark text on white cards and tiles.
     static let ink = Color(red: 0.08, green: 0.08, blue: 0.1)
     static let live = Color(red: 1, green: 0.3, blue: 0.3)
+    /// Text of rows that delete something, on glass.
+    static let danger = Color(red: 1, green: 0.54, blue: 0.54)
     static let good = Color(red: 0.29, green: 0.87, blue: 0.5)
     static let warning = Color(red: 1, green: 0.75, blue: 0.3)
 }
