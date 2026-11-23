@@ -8,6 +8,7 @@ enum AppTab: Hashable {
 /// glass button. On iPad the same bar sits at the top and can open into a sidebar.
 /// Settings is behind the gear on Home, not a tab.
 struct RootView: View {
+    @EnvironmentObject private var settings: AppSettings
     @State private var tab: AppTab = .home
     @State private var showingSettings = false
 
@@ -34,6 +35,7 @@ struct RootView: View {
         // Reminders slide in over every tab, and become notifications for when Tellio is closed.
         .overlay(alignment: .top) { ReminderBanner() }
         .task { await ReminderStore.shared.run() }
+        .onAppear { PlayerSession.shared.settings = settings }
         .onReceive(ReminderStore.shared.$allReminders) { _ in ReminderNotifications.sync() }
         .sheet(isPresented: $showingSettings) {
             SettingsView()

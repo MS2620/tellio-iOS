@@ -3,7 +3,8 @@ import SwiftUI
 
 /// What to play. Mirrors the Apple TV app's PlaybackRequest so the stage 4 player can take over.
 struct PlaybackRequest: Identifiable {
-    let id = UUID()
+    /// A new id reloads the stream (Try again keeps the rest).
+    var id = UUID()
     var url: URL
     var title: String?
     var subtitle: String? = nil
@@ -11,6 +12,10 @@ struct PlaybackRequest: Identifiable {
     var httpHeaders: [String: String] = [:]
     /// For live TV: the channel list it was opened from, for zapping later.
     var live: LiveContext? = nil
+    /// A film or episode: progress is saved (Continue Watching) and Trakt told what's playing.
+    var watch: WatchContext? = nil
+    /// Where to start, in seconds, when resuming.
+    var startPosition: Double? = nil
 }
 
 struct LiveContext {
@@ -19,21 +24,49 @@ struct LiveContext {
     var channel: XtreamChannel { channels[index] }
 }
 
-/// For now, playback uses Apple's full-screen player (AirPlay, picture in picture, rotation).
-/// Stage 4 replaces it with Tellio's own player with channel zapping.
+/// Opens Tellio's player (PlayerScreen, on AetherEngine). Apple's player is only a fallback
+/// for the unlikely case that the engine can't start.
 ///
-/// Only one stream plays at a time: closing the player, or opening another channel, stops the
-/// stream straight away so the provider frees the connection (many allow only one).
+/// Only one stream plays at a time: opening something while the player is up swaps the stream
+/// in place, and closing the player stops it straight away so the provider frees the
+/// connection (many allow only one).
 @MainActor
 enum SystemPlayer {
     private static var current: PlayerController?
+    private static var screen: PlayerHostingController?
+
+    static func present(_ request: PlaybackRequest) {
+        let session = PlayerSession.shared
+        guard let engine = session.engine else {
+            presentSystemPlayer(request)
+            return
+        }
+        if let screen, screen.presentingViewController != nil {
+            session.request = request
+            return
+        }
+        guard let top = topController() else { return }
+        session.request = request
+        let controller = PlayerHostingController(rootView: AnyView(
+            PlayerScreen(session: session, engine: engine) {
+                if let shown = screen {
+                    screen = nil
+                    shown.dismiss(animated: true)
+                }
+            }
+        ))
+        controller.modalPresentationStyle = .fullScreen
+        screen = controller
+        top.present(controller, animated: true)
+    }
 
     /// Lets sound play with the silent switch on, over AirPlay and in picture in picture.
     static func configureAudio() {
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
     }
 
-    static func present(_ request: PlaybackRequest) {
+    /// Apple's player, used only when AetherEngine can't start.
+    private static func presentSystemPlayer(_ request: PlaybackRequest) {
         stop()
         guard let top = topController() else { return }
 
@@ -53,7 +86,10 @@ enum SystemPlayer {
         }
         current = controller
         try? AVAudioSession.sharedInstance().setActive(true)
-        top.present(controller, animated: true) { player.play() }
+        controller.track(request.isLive ? nil : request.watch, startAt: request.startPosition)
+        top.present(controller, animated: true) {
+            if (request.startPosition ?? 0) <= 0 { player.play() }
+        }
     }
 
     /// Stops the stream and drops the player, closing its connection to the server.
@@ -96,6 +132,74 @@ enum SystemPlayer {
 private final class PlayerController: AVPlayerViewController, AVPlayerViewControllerDelegate {
     var onFinished: (() -> Void)?
     private var inPictureInPicture = false
+    private var watch: WatchContext?
+    private var timeObserver: Any?
+    private var observations: [NSKeyValueObservation] = []
+    private var lastPlaying: Bool?
+
+    /// Resumes at a position once the stream is ready, saves progress every 15 seconds, and
+    /// tells Trakt when playback starts and pauses.
+    func track(_ watch: WatchContext?, startAt: Double?) {
+        guard let player else { return }
+        self.watch = watch
+        if let startAt, startAt > 0, let item = player.currentItem {
+            observations.append(item.observe(\.status, options: [.initial, .new]) { [weak self] item, _ in
+                guard item.status != .unknown else { return }
+                DispatchQueue.main.async {
+                    guard let self, let player = self.player else { return }
+                    self.observations.removeAll()
+                    self.observePlaying(player)
+                    if item.status == .readyToPlay {
+                        player.seek(to: CMTime(seconds: startAt, preferredTimescale: 600)) { _ in
+                            DispatchQueue.main.async { player.play() }
+                        }
+                    } else {
+                        player.play()
+                    }
+                }
+            })
+        } else {
+            observePlaying(player)
+        }
+        guard watch != nil else { return }
+        timeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 15, preferredTimescale: 1),
+                                                      queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.saveProgress() }
+        }
+    }
+
+    private func observePlaying(_ player: AVPlayer) {
+        guard watch != nil else { return }
+        observations.append(player.observe(\.timeControlStatus, options: [.new]) { [weak self] player, _ in
+            let playing = player.timeControlStatus == .playing
+            let paused = player.timeControlStatus == .paused
+            guard playing || paused else { return }
+            DispatchQueue.main.async {
+                guard let self, self.lastPlaying != playing else { return }
+                self.lastPlaying = playing
+                self.scrobble(playing ? "start" : "pause")
+                if paused { self.saveProgress() }
+            }
+        })
+    }
+
+    private var position: (current: Double, duration: Double)? {
+        guard let item = player?.currentItem else { return nil }
+        let duration = item.duration.seconds
+        let current = item.currentTime().seconds
+        guard duration.isFinite, duration > 0, current.isFinite else { return nil }
+        return (current, duration)
+    }
+
+    private func saveProgress() {
+        guard let watch, let position, position.current > 0 else { return }
+        WatchHistory.shared.record(watch, position: position.current, duration: position.duration)
+    }
+
+    private func scrobble(_ action: String) {
+        guard let watch, let position else { return }
+        TraktSync.shared.scrobble(action, context: watch, progress: position.current / position.duration * 100)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -111,6 +215,12 @@ private final class PlayerController: AVPlayerViewController, AVPlayerViewContro
 
     /// Pauses and removes the stream, which closes its connection.
     func release() {
+        saveProgress()
+        scrobble("stop")
+        watch = nil
+        observations.removeAll()
+        if let timeObserver { player?.removeTimeObserver(timeObserver) }
+        timeObserver = nil
         player?.pause()
         player?.replaceCurrentItem(with: nil)
         player = nil
