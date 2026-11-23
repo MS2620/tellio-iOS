@@ -18,7 +18,7 @@ struct RootView: View {
                 HomeView(showSettings: { showingSettings = true })
             }
             Tab("Browse", systemImage: "film.stack", value: .browse) {
-                ScreenPlaceholder(title: "Browse", detail: "Movies, Series and Calendar")
+                BrowseView()
             }
             Tab("Live TV", systemImage: "tv", value: .live) {
                 LiveTVView()
