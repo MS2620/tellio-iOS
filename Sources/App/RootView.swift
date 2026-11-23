@@ -14,7 +14,7 @@ struct RootView: View {
     var body: some View {
         TabView(selection: $tab) {
             Tab("Home", systemImage: "house", value: .home) {
-                HomePlaceholder(showSettings: { showingSettings = true })
+                HomeView(showSettings: { showingSettings = true })
             }
             Tab("Browse", systemImage: "film.stack", value: .browse) {
                 ScreenPlaceholder(title: "Browse", detail: "Movies, Series and Calendar")
@@ -37,37 +37,6 @@ struct RootView: View {
         .onReceive(ReminderStore.shared.$allReminders) { _ in ReminderNotifications.sync() }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
-        }
-    }
-}
-
-/// Home's header: the Tellio name and the Settings gear. The rows come later in stage 3.
-private struct HomePlaceholder: View {
-    let showSettings: () -> Void
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    HStack {
-                        Text("Tellio")
-                            .font(.title.weight(.black))
-                        Spacer()
-                        GlassIconButton("gearshape", label: "Settings", action: showSettings)
-                    }
-                    .padding(.horizontal, 20)
-
-                    Text("Continue Watching, My List and trending rows will appear here.")
-                        .foregroundStyle(.secondary)
-                        .padding(20)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .glassPanel()
-                        .padding(.horizontal, 20)
-                }
-                .padding(.top, 8)
-            }
-            .appBackground()
-            .toolbarVisibility(.hidden, for: .navigationBar)
         }
     }
 }
