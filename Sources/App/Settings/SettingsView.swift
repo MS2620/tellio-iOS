@@ -75,6 +75,14 @@ struct SettingsView: View {
                                               settings.prefs.crashReports = on
                                               CrashReporting.apply(enabled: on)
                                           }))
+                    SettingsLink(title: "Send feedback", subtitle: "A problem or an idea", icon: "bubble.left",
+                                 value: FeedbackService.isAvailable ? nil : "Not in this build") {
+                        FeedbackView()
+                    }
+                    SettingsLink(title: "Acknowledgements", subtitle: "Open-source software in Tellio",
+                                 icon: "doc.text") {
+                        AcknowledgementsView()
+                    }
                 }
                 SettingsNote("When Tellio crashes, a report is sent the next time it opens. It holds where in Tellio's code it crashed and the iOS version and model, nothing else.")
             }

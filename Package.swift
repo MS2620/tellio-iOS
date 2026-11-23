@@ -35,7 +35,8 @@ let package = Package(
                 "\(shared)/Sources/Core/TopShelfPublisher.swift",
                 // Apple TV-only parts of the repo. SwiftPM scans the whole target folder for
                 // resources, so these would otherwise be picked up (e.g. the tvOS icon catalog).
-                "\(shared)/Resources",
+                // Resources/Licenses is kept: Settings › About › Acknowledgements shows them.
+                "\(shared)/Resources/Assets.xcassets",
                 "\(shared)/TopShelf",
                 "\(shared)/Sources/Player",
                 "\(shared)/server",
@@ -51,6 +52,9 @@ let package = Package(
                 "\(shared)/Shared",
                 "Shims",
                 "Sources/App",
+            ],
+            resources: [
+                .copy("\(shared)/Resources/Licenses"),
             ],
             swiftSettings: [
                 // Same language mode as the Apple TV app.
