@@ -185,13 +185,42 @@ struct SettingsNote: View {
     }
 }
 
-/// A settings screen that isn't built yet.
-struct ComingSoonPage: View {
+/// A row with a pop-up menu of choices (any value type).
+struct SettingsOptionRow<Value: Hashable>: View {
     let title: String
+    var subtitle: String? = nil
+    let icon: String
+    @Binding var selection: Value
+    let options: [(Value, String)]
 
     var body: some View {
-        SettingsPage(title) {
-            SettingsNote("Coming soon on iPhone and iPad. Until then, set this up on the Apple TV and bring it across with a backup code.")
+        HStack(spacing: 0) {
+            SettingsRowLabel(title: title, subtitle: subtitle, icon: icon)
+            Picker(title, selection: $selection) {
+                ForEach(options, id: \.0) { option in
+                    Text(option.1).tag(option.0)
+                }
+            }
+            .labelsHidden()
+            .pickerStyle(.menu)
+            .tint(.secondary)
+            .padding(.trailing, 6)
         }
+    }
+}
+
+/// A row that does something when tapped, with an optional value or status on the right.
+struct SettingsActionRow: View {
+    let title: String
+    var subtitle: String? = nil
+    let icon: String
+    var value: String? = nil
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            SettingsRowLabel(title: title, subtitle: subtitle, icon: icon, value: value)
+        }
+        .buttonStyle(.plain)
     }
 }

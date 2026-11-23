@@ -16,37 +16,54 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.plain)
 
-                SettingsGroup("Accounts") {
+                SettingsGroup("Media") {
                     SettingsLink(title: "Connections", subtitle: "IPTV, addons, Trakt, TMDB", icon: "link",
                                  value: connectionCount) {
                         ConnectionsView()
                     }
+                    SettingsLink(title: "Live TV & Guide", icon: "antenna.radiowaves.left.and.right",
+                                 value: settings.prefs.liveLayout.label) {
+                        LiveTVSettingsView()
+                    }
+                    SettingsLink(title: "Content", subtitle: "Groups, folders, sort by quality",
+                                 icon: "square.stack.3d.up") {
+                        ContentSettingsView()
+                    }
+                    SettingsLink(title: "Streams", icon: "list.bullet.rectangle") {
+                        StreamSettingsView()
+                    }
+                }
+
+                SettingsGroup("Playback") {
+                    SettingsLink(title: "Player", icon: "play.rectangle") { PlayerSettingsView() }
+                    SettingsLink(title: "Subtitles", icon: "captions.bubble") { SubtitleSettingsView() }
+                }
+
+                SettingsGroup("Personalise") {
+                    SettingsLink(title: "Home screen", icon: "house") { HomeScreenSettingsView() }
+                    SettingsLink(title: "Appearance", icon: "paintbrush",
+                                 value: settings.prefs.backgroundStyle.label) {
+                        AppearanceView()
+                    }
+                    SettingsLink(title: "Sports", icon: "sportscourt") { SportsSettingsView() }
+                    SettingsLink(title: "Calendar", icon: "calendar") { CalendarSettingsView() }
+                    SettingsLink(title: "Parental controls", icon: "lock",
+                                 value: settings.prefs.parentalControlsOn ? "On" : "Off") {
+                        ParentalControlsView()
+                    }
+                }
+
+                SettingsGroup("Backup") {
                     SettingsLink(title: "Backup & restore", icon: "externaldrive",
                                  value: backup.isConfigured ? "Ready" : "Set up") {
                         BackupView()
                     }
                 }
 
-                SettingsGroup("Watching") {
-                    SettingsLink(title: "Content", subtitle: "Groups, folders, Sort by quality",
-                                 icon: "square.stack.3d.up") {
-                        ComingSoonPage(title: "Content")
-                    }
-                    SettingsLink(title: "Playback", icon: "play.rectangle") {
-                        ComingSoonPage(title: "Playback")
-                    }
-                    SettingsLink(title: "Parental controls", icon: "lock",
-                                 value: settings.prefs.parentalControlsOn ? "On" : "Off") {
-                        ComingSoonPage(title: "Parental controls")
-                    }
-                    SettingsLink(title: "Appearance", icon: "paintbrush",
-                                 value: settings.prefs.backgroundStyle.label) {
-                        AppearanceView()
-                    }
-                }
-
                 SettingsGroup("About") {
                     SettingsInfoRow(title: "Version", icon: "info.circle", value: Self.version)
+                    SettingsInfoRow(title: "Player engine", icon: "cpu",
+                                    value: PlayerSession.shared.engine == nil ? "System player" : "AetherEngine")
                     SettingsToggleRow(title: "Send crash reports",
                                       subtitle: CrashReporting.isAvailable
                                           ? "Anonymous; no logins, links or watch history"
