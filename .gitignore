@@ -1,0 +1,13 @@
+CLAUDE.md
+.DS_Store
+/.build
+/Packages
+/xtool
+.swiftpm/
+.netrc
+/.bsp
+
+# Token optimizer files, kept local
+/.claude
+/.claudeignore
+/docs/INDEX.md
