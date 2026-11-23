@@ -77,6 +77,7 @@ struct ContinueWatchingRail: View {
     struct Card: Identifiable {
         let id: String
         let entry: WatchEntry
+        let target: StreamTarget
         let line: String
         let fraction: Double?
         let badge: String?
@@ -88,15 +89,25 @@ struct ContinueWatchingRail: View {
         history.latestPerTitle.prefix(30).compactMap { entry -> Card? in
             let item = entry.item
             guard !entry.context.imdbID.isEmpty else { return nil }
+            let imdbID = entry.context.imdbID
             if entry.isResumable {
+                let target: StreamTarget
+                if let season = entry.context.season, let episode = entry.context.episode {
+                    target = .episode(item: item, imdbID: imdbID, season: season, episode: episode,
+                                      name: entry.context.episodeName)
+                } else {
+                    target = .movie(item: item, imdbID: imdbID)
+                }
                 let line = [entry.episodeLabel, entry.timeLeftLabel].compactMap { $0 }.joined(separator: " · ")
-                return Card(id: entry.id, entry: entry, line: line, fraction: entry.fraction, badge: nil,
+                return Card(id: entry.id, entry: entry, target: target, line: line, fraction: entry.fraction, badge: nil,
                             imageURL: item.backdropURL)
             }
             // A finished episode: offer the next one, once it has aired.
             guard entry.watched, entry.context.season != nil, !history.dismissedNextUp.contains(item.uid),
                   let next = nextEpisodes[entry.id] else { return nil }
-            return Card(id: "next-\(item.uid)", entry: entry, line: "Next: S\(next.season) · E\(next.episode)",
+            let target = StreamTarget.episode(item: item, imdbID: imdbID, season: next.season,
+                                              episode: next.episode, name: next.name)
+            return Card(id: "next-\(item.uid)", entry: entry, target: target, line: "Next: S\(next.season) · E\(next.episode)",
                         fraction: nil, badge: next.isNew ? "NEW EPISODE" : "UP NEXT",
                         imageURL: next.stillURL ?? item.backdropURL)
         }
@@ -115,7 +126,7 @@ struct ContinueWatchingRail: View {
             if !list.isEmpty {
                 Rail(title: "Continue Watching") {
                     ForEach(list) { card in
-                        NavigationLink(value: card.entry.item) {
+                        NavigationLink(value: card.target) {
                             ContinueCard(card: card)
                         }
                         .buttonStyle(.plain)
@@ -124,6 +135,9 @@ struct ContinueWatchingRail: View {
                                 Button("Mark as watched", systemImage: "checkmark.circle") {
                                     history.setWatched(true, context: card.entry.context)
                                 }
+                            }
+                            NavigationLink(value: card.entry.item) {
+                                Label("Go to \(card.entry.item.kind == .movie ? "film" : "series")", systemImage: "info.circle")
                             }
                             Button("Remove from Continue Watching", systemImage: "xmark.circle", role: .destructive) {
                                 history.remove(card.entry.item)

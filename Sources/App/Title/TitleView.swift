@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A film or series: artwork, details, overview, cast, My List and, for series, seasons and
-/// episodes with watched ticks. Playing comes next (addon streams and resume).
+/// episodes with watched ticks. Play and the episodes open the stream page.
 struct TitleView: View {
     let item: TMDBItem
     @EnvironmentObject private var settings: AppSettings
@@ -11,6 +11,28 @@ struct TitleView: View {
     @State private var season: Int?
     @State private var episodes: [TVEpisode] = []
     @State private var loadingEpisodes = false
+
+    private var imdbID: String? { details?.externalIds?.imdbId }
+
+    /// Play (or resume) for a film; for a series, the episode you're part-way through, else
+    /// the first episode.
+    private var playTarget: (target: StreamTarget, label: String)? {
+        guard let imdbID else { return nil }
+        if item.kind == .movie {
+            let entry = history.entry(item: item)
+            return (.movie(item: item, imdbID: imdbID),
+                    entry?.isResumable == true ? "Resume · \(entry!.timeLeftLabel)" : "Play")
+        }
+        if let latest = history.latestEpisode(of: item), latest.isResumable,
+           let season = latest.context.season, let episode = latest.context.episode {
+            return (.episode(item: item, imdbID: imdbID, season: season, episode: episode,
+                             name: latest.context.episodeName),
+                    "Resume S\(season) · E\(episode)")
+        }
+        guard let first = seasons.first else { return nil }
+        return (.episode(item: item, imdbID: imdbID, season: first.seasonNumber, episode: 1, name: nil),
+                "Play S\(first.seasonNumber) · E1")
+    }
 
     private var seasons: [TVSeasonSummary] {
         (details?.seasons ?? []).filter { $0.seasonNumber > 0 }
@@ -29,17 +51,35 @@ struct TitleView: View {
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    Button {
-                        settings.toggleMyList(item)
-                    } label: {
-                        Label(settings.isInMyList(item) ? "In My List" : "Add to My List",
-                              systemImage: settings.isInMyList(item) ? "checkmark" : "plus")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, minHeight: 30)
+                    HStack(spacing: 10) {
+                        if let play = playTarget {
+                            NavigationLink(value: play.target) {
+                                Label(play.label, systemImage: "play.fill")
+                                    .font(.headline)
+                                    .lineLimit(1)
+                                    .frame(maxWidth: .infinity, minHeight: 30)
+                            }
+                            .buttonStyle(.glassProminent)
+                            .tint(.white)
+                            .foregroundStyle(Theme.ink)
+                        } else if details != nil && imdbID == nil {
+                            Text("Can't be played: this title has no IMDb id for addons to look up.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            ProgressView().frame(maxWidth: .infinity, minHeight: 30)
+                        }
+                        Button {
+                            settings.toggleMyList(item)
+                        } label: {
+                            Image(systemName: settings.isInMyList(item) ? "checkmark" : "plus")
+                                .font(.headline)
+                                .frame(width: 30, height: 30)
+                        }
+                        .buttonStyle(.glass)
+                        .accessibilityLabel(settings.isInMyList(item) ? "Remove from My List" : "Add to My List")
                     }
-                    .buttonStyle(.glassProminent)
-                    .tint(.white)
-                    .foregroundStyle(Theme.ink)
 
                     if let tagline = details?.tagline, !tagline.isEmpty {
                         Text(tagline).font(.headline).italic()
@@ -135,10 +175,32 @@ struct TitleView: View {
             }
             LazyVStack(spacing: 10) {
                 ForEach(episodes, id: \.id) { episode in
-                    EpisodeRow(item: item, episode: episode)
+                    if let imdbID {
+                        NavigationLink(value: StreamTarget.episode(item: item, imdbID: imdbID,
+                                                                   season: episode.seasonNumber,
+                                                                   episode: episode.episodeNumber,
+                                                                   name: episode.name)) {
+                            EpisodeRow(item: item, episode: episode)
+                        }
+                        .buttonStyle(.plain)
+                        .contextMenu { episodeMenu(episode, imdbID: imdbID) }
+                    } else {
+                        EpisodeRow(item: item, episode: episode)
+                    }
                 }
             }
             .padding(.horizontal, 16)
+        }
+    }
+
+    @ViewBuilder
+    private func episodeMenu(_ episode: TVEpisode, imdbID: String) -> some View {
+        let context = WatchContext(item: item, imdbID: imdbID, season: episode.seasonNumber,
+                                   episode: episode.episodeNumber, episodeName: episode.name)
+        let watched = history.isWatched(item, season: episode.seasonNumber, episode: episode.episodeNumber)
+        Button(watched ? "Mark as unwatched" : "Mark as watched",
+               systemImage: watched ? "eye.slash" : "checkmark.circle") {
+            history.setWatched(!watched, context: context)
         }
     }
 

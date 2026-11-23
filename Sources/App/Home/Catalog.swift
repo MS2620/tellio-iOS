@@ -66,6 +66,7 @@ enum Catalog {
     }
 }
 
+@MainActor
 extension AppSettings {
     func isInMyList(_ item: TMDBItem) -> Bool {
         prefs.myList.contains { $0.uid == item.uid }
@@ -75,8 +76,10 @@ extension AppSettings {
     func toggleMyList(_ item: TMDBItem) {
         if isInMyList(item) {
             prefs.myList.removeAll { $0.uid == item.uid }
+            TraktSync.shared.watchlistChanged(item, added: false)
         } else {
             prefs.myList.append(item)
+            TraktSync.shared.watchlistChanged(item, added: true)
         }
     }
 }
