@@ -101,6 +101,21 @@ jobs:
           echo "--- Frameworks in the IPA ---"
           unzip -l Tellio-unsigned.ipa | grep -o 'Frameworks/[^/]*\.framework/' | sort -u
 
+      # Symbol files, so crash reports show function names and lines. Skipped until the
+      # SENTRY_AUTH_TOKEN secret and SENTRY_ORG variable are set. Never fails the build.
+      - name: Upload debug symbols to Sentry
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT || 'tellio' }}
+        run: |
+          if [ -z "$SENTRY_AUTH_TOKEN" ] || [ -z "$SENTRY_ORG" ]; then
+            echo "Skipped: add the SENTRY_AUTH_TOKEN secret and SENTRY_ORG variable"; exit 0
+          fi
+          npx --yes @sentry/cli@2 debug-files upload --include-sources .build/out/Products/Release-iphoneos
+
       - uses: actions/upload-artifact@v4
         with:
           name: Tellio-iOS-unsigned-ipa

@@ -1,0 +1,44 @@
+Tellio
+Copyright (c) 2026 Mauro Sousa. All rights reserved.
+
+This repository is public so that people can download Tellio, read how it
+works, report problems and help fix them. It is not open source.
+
+You MAY:
+  - download the official Tellio builds published on this repository's
+    Releases page and install them on your own devices for your own
+    personal, non-commercial use;
+  - read the source code, and open issues about it;
+  - contribute: fork this repository on GitHub, make changes in your fork,
+    build and test them on your own devices, and send them back to this
+    repository as a pull request (see CONTRIBUTING.md). This permission
+    is only for preparing contributions to this repository.
+
+You MAY NOT, without written permission from the copyright holder:
+  - copy, modify, merge, translate or create works based on any part of
+    this source code, its designs, artwork, logo or name;
+  - publish, distribute, sublicense or sell this software or any modified
+    version of it, in source or compiled form, including re-uploading the
+    builds elsewhere or publishing them under another name;
+  - use any part of it in another product, commercial or not.
+
+Apart from preparing a contribution as described above, forking this
+repository does not grant any of the rights above.
+
+CONTRIBUTIONS: by sending a pull request, issue text or other contribution
+to this repository, you confirm that you wrote it (or have the right to
+submit it) and you grant the copyright holder a perpetual, worldwide,
+royalty-free, irrevocable licence to use, modify, relicense and distribute
+it as part of Tellio or otherwise. You keep the copyright in your own work.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+Third-party components included in Tellio builds (such as AetherEngine,
+FFmpeg and the Sentry SDK) are not covered by this licence. Each remains
+under its own licence; see "Third-party software" in README.md.
+
+For permission requests, open an issue on this repository.

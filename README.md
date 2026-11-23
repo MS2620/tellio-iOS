@@ -50,11 +50,14 @@ With a free Apple ID, sideloaded apps stop opening after 7 days until they're si
 
 - Your logins, addons and watch history stay on your device, in its Keychain. There's no Tellio account.
 - Crash reports go to Sentry. They contain no logins, stream links, server or channel names, IP address or watch history. Turn them off in **Settings › About**.
+- Feedback sent from the app becomes a public issue on GitHub. A contact you leave for a reply is kept private and never posted.
 - Tellio asks TMDB, ESPN and Jolpica for film and sports information, and Trakt only if you sign in.
 
 ## Feedback and problems
 
-[Open an issue](https://github.com/MS2620/tellio-iOS/issues/new) on GitHub. You need a GitHub account, and you can add screenshots.
+- **From the app:** Settings › About › Send feedback.
+- **On GitHub:** [open an issue](https://github.com/MS2620/tellio-iOS/issues/new). You need a GitHub account, and you can add screenshots.
+- **Fix it yourself:** pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Say what you did, what happened, and your build number (in Settings › About). Please don't post logins, server addresses or addon links.
 
@@ -84,11 +87,13 @@ The built-in keys come from repository secrets and are never in the code. A miss
 | `TMDB_TOKEN` | Film and series information without users adding their own TMDB key |
 | `TRAKT_CLIENT_ID` | Trakt sign-in |
 | `SENTRY_DSN` | Crash reports |
-| `FEEDBACK_URL` | Send feedback from the app (filled in, but the iPhone app doesn't have the feedback page yet) |
+| `FEEDBACK_URL` | Send feedback from the app |
+
+To upload debug symbols to Sentry, so crash reports show function names, also add the `SENTRY_AUTH_TOKEN` secret and the `SENTRY_ORG` variable (and `SENTRY_PROJECT` if it isn't `tellio`).
 
 ## Licence
 
-Tellio is **not open source**, but contributions are welcome. You can download the official builds and use them on your own devices, read the code, and fork it to fix bugs or add features and send them back as a pull request. You may not publish your own copies or versions of Tellio, or reuse its code elsewhere. The terms are the same as for the Apple TV app; see its [LICENSE](https://github.com/MS2620/tellio/blob/main/LICENSE).
+Tellio is **not open source**, but contributions are welcome. You can download the official builds and use them on your own devices, read the code, and fork it to fix bugs or add features and send them back as a pull request. You may not publish your own copies or versions of Tellio, or reuse its code elsewhere. See [LICENSE](LICENSE) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Third-party software
 
@@ -100,4 +105,4 @@ Tellio builds include these components, each under its own licence. Each build's
 - [Anime4K](https://github.com/bloc97/Anime4K) (line-art upscaling, inside AetherEngine), Copyright (c) 2019-2021 bloc97: MIT.
 - [Sentry Cocoa SDK](https://github.com/getsentry/sentry-cocoa): MIT.
 
-The full licence texts are in [`Resources/Licenses`](https://github.com/MS2620/tellio/tree/main/Resources/Licenses) in the Apple TV repository.
+The full licence texts are in the app under Settings › About › Acknowledgements, and in [`Resources/Licenses`](https://github.com/MS2620/tellio/tree/main/Resources/Licenses) in the Apple TV repository.
