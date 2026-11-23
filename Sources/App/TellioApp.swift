@@ -8,6 +8,7 @@ struct TellioApp: App {
         // As early as possible, so a crash during launch is still caught.
         CrashReporting.apply(enabled: Preferences.load().crashReports)
         SystemPlayer.configureAudio()
+        ReminderNotifications.configure()
     }
 
     var body: some Scene {

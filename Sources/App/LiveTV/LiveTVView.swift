@@ -3,6 +3,7 @@ import SwiftUI
 /// Live TV: group chips, the channel list with now and next, search across every channel.
 struct LiveTVView: View {
     @EnvironmentObject private var settings: AppSettings
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @ObservedObject private var parental = ParentalLock.shared
 
     @State private var categories: [XtreamCategory] = []
@@ -25,6 +26,8 @@ struct LiveTVView: View {
     @State private var wrongPIN = false
     @State private var renaming: XtreamChannel?
     @State private var newName = ""
+    /// The programme picked in the guide.
+    @State private var selection: GuideSelection?
 
     private var prefs: Preferences { settings.prefs }
 
@@ -65,7 +68,7 @@ struct LiveTVView: View {
                         Button("Try again") { reload += 1 }.buttonStyle(.glass)
                     }
                 } else {
-                    channelList
+                    content
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -73,6 +76,7 @@ struct LiveTVView: View {
             .navigationTitle("Live TV")
             .searchable(text: $query, prompt: "Channels")
             .toolbar { toolbar }
+            .navigationBarTitleDisplayMode(isWide ? .inline : .automatic)
         }
         .task(id: "\(settings.xtream.id)|\(reload)|\(prefs.qualitySortCategoryIDs.sorted())") { await loadGroups() }
         .task(id: channelsKey) { await loadChannels() }
@@ -110,6 +114,78 @@ struct LiveTVView: View {
     }
 
     // MARK: - Content
+
+    /// iPad (and wide windows): groups in a sidebar, programme details above the guide.
+    private var isWide: Bool { sizeClass == .regular }
+
+    @ViewBuilder
+    private var content: some View {
+        if !query.isEmpty {
+            channelList
+        } else if isWide {
+            wideLayout
+        } else if prefs.liveLayout == .guide {
+            VStack(alignment: .leading, spacing: 6) {
+                groupChips
+                infoLine.padding(.horizontal, 20)
+                guide(scale: 4)
+            }
+            .safeAreaInset(edge: .bottom) {
+                if let selection {
+                    ProgrammeCard(selection: selection, now: now, onClose: { self.selection = nil }) {
+                        play(selection.channel)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 8)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .animation(.spring(duration: 0.3), value: selection)
+        } else {
+            channelList
+        }
+    }
+
+    private var wideLayout: some View {
+        HStack(alignment: .top, spacing: 16) {
+            GroupSidebar(title: settings.xtream.displayName, groups: groups, selectedID: selectedID,
+                         select: select)
+                .frame(width: 260)
+            VStack(alignment: .leading, spacing: 12) {
+                if let shown = selection ?? defaultSelection {
+                    ProgrammeCard(selection: shown, now: now) { play(shown.channel) }
+                }
+                infoLine.padding(.horizontal, 4)
+                if shownChannels.isEmpty {
+                    emptyState.padding(.top, 20)
+                    Spacer()
+                } else {
+                    guide(scale: 6.8)
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+    }
+
+    /// On iPad the details panel is never empty: the first channel's programme on now.
+    private var defaultSelection: GuideSelection? {
+        guard let channel = shownChannels.first else { return nil }
+        return GuideSelection(channel: channel, entry: NowNext.current(epg[channel.id], at: now))
+    }
+
+    private func guide(scale: CGFloat) -> some View {
+        GuideGrid(channels: shownChannels, epg: epg, now: now, showsGuide: prefs.showEPG,
+                  showsNumbers: prefs.showChannelNumbers, scale: scale,
+                  selection: $selection,
+                  isReminded: { ReminderStore.shared.isSet(channelID: $0, start: $1) },
+                  menu: { channelMenu($0) })
+            .overlay {
+                if shownChannels.isEmpty && !isWide {
+                    emptyState.padding(.horizontal, 20)
+                }
+            }
+    }
 
     private var channelList: some View {
         ScrollView {
@@ -233,6 +309,17 @@ struct LiveTVView: View {
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
+        if !isWide && settings.xtream.isConfigured {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    selection = nil
+                    settings.prefs.liveLayout = prefs.liveLayout == .guide ? .list : .guide
+                } label: {
+                    Label(prefs.liveLayout == .guide ? "List view" : "Guide view",
+                          systemImage: prefs.liveLayout == .guide ? "list.bullet" : "calendar.day.timeline.left")
+                }
+            }
+        }
         if settings.xtreamAccounts.count > 1 {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -291,6 +378,7 @@ struct LiveTVView: View {
             return
         }
         guard group.id != selectedID else { return }
+        selection = nil
         selectedID = group.id
         if prefs.rememberLastCategory { settings.prefs.lastCategoryID = group.id }
     }
@@ -438,5 +526,45 @@ private struct GroupPicker: View {
             .navigationTitle("Groups")
             .navigationBarTitleDisplayMode(.inline)
         }
+    }
+}
+
+/// iPad: the account's groups in a glass sidebar.
+private struct GroupSidebar: View {
+    let title: String
+    let groups: [LiveGroup]
+    let selectedID: String?
+    let select: (LiveGroup) -> Void
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 2) {
+                Text(title.uppercased())
+                    .font(.caption.weight(.heavy))
+                    .tracking(0.5)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                ForEach(groups) { group in
+                    let selected = group.id == selectedID
+                    Button {
+                        select(group)
+                    } label: {
+                        Label(group.name, systemImage: group.locked ? "lock.fill" : group.icon)
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                            .padding(.horizontal, 12)
+                            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                            .foregroundStyle(selected ? Theme.ink : .primary)
+                            .background(selected ? Color.white : .clear, in: .rect(cornerRadius: 12))
+                            .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(selected ? .isSelected : [])
+                }
+            }
+            .padding(8)
+        }
+        .glassPanel(cornerRadius: 24)
     }
 }

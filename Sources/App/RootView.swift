@@ -31,6 +31,10 @@ struct RootView: View {
         }
         .tabViewStyle(.sidebarAdaptable)
         .tabBarMinimizeBehavior(.onScrollDown)
+        // Reminders slide in over every tab, and become notifications for when Tellio is closed.
+        .overlay(alignment: .top) { ReminderBanner() }
+        .task { await ReminderStore.shared.run() }
+        .onReceive(ReminderStore.shared.$allReminders) { _ in ReminderNotifications.sync() }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
         }
