@@ -21,7 +21,7 @@ struct RootView: View {
                 ScreenPlaceholder(title: "Browse", detail: "Movies, Series and Calendar")
             }
             Tab("Live TV", systemImage: "tv", value: .live) {
-                ScreenPlaceholder(title: "Live TV", detail: "Channels and the TV guide")
+                LiveTVView()
             }
             Tab("Sports", systemImage: "soccerball", value: .sports) {
                 ScreenPlaceholder(title: "Sports", detail: "Your teams, live scores and tables")
