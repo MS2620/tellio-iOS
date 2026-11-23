@@ -1,0 +1,132 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+    paths-ignore: ["**.md", "LICENSE", "docs/**"]   # text-only edits don't need a build
+  pull_request:
+  workflow_dispatch:
+
+# A newer push cancels the build still running for an older one.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  HOMEBREW_NO_AUTO_UPDATE: "1"
+  HOMEBREW_NO_INSTALL_CLEANUP: "1"
+
+jobs:
+  # Builds the app (unsigned) on every push, so you know the code builds, and publishes
+  # each build of master as a pre-release with Tellio.ipa attached.
+  build:
+    runs-on: xcode-27  # AetherEngine needs Xcode 27; the same runner as the Apple TV build
+    permissions:
+      contents: write   # to publish the pre-release below
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true   # Vendor/tellio: the shared code from the Apple TV app
+
+      # Reuse downloaded packages (AetherEngine, FFmpeg, Sentry) and their compiled output.
+      - name: Restore build cache
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: spm-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-${{ github.sha }}
+          restore-keys: |
+            spm-${{ runner.os }}-${{ hashFiles('Package.resolved') }}-
+
+      - name: Install xtool
+        run: brew install xtool-org/tap/xtool
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-path
+          swift --version
+          xtool --version
+
+      # The exact library versions, shown in Settings › About › Acknowledgements.
+      - name: Read library versions
+        run: |
+          python3 - >> "$GITHUB_ENV" <<'PY'
+          import json
+          pins = json.load(open("Package.resolved")).get("pins", [])
+          pairs = [f"{p['identity']}={p.get('state', {}).get('version', '')}" for p in pins]
+          print("LIBRARY_VERSIONS=" + ",".join(pairs))
+          PY
+          grep LIBRARY_VERSIONS "$GITHUB_ENV"
+
+      # Scramble the built-in TMDB token so it isn't plain text in the app file.
+      # The app unscrambles it (AppSettings.builtInTMDBToken); TOKEN_MASK must match it there.
+      - name: Scramble built-in keys
+        env:
+          TMDB_TOKEN_PLAIN: ${{ secrets.TMDB_TOKEN }}
+          TOKEN_MASK: T3ll10-sh3lf-m4sk-2026
+        run: |
+          SCRAMBLED=$(python3 - <<'PY'
+          import base64, os
+          token, mask = os.environ.get("TMDB_TOKEN_PLAIN", "").strip().encode(), os.environ["TOKEN_MASK"].encode()
+          print("x1:" + base64.b64encode(bytes(b ^ mask[i % len(mask)] for i, b in enumerate(token))).decode() if token else "")
+          PY
+          )
+          # Keep it out of the public build logs too.
+          [ -n "$SCRAMBLED" ] && echo "::add-mask::$SCRAMBLED"
+          echo "TMDB_TOKEN_SCRAMBLED=$SCRAMBLED" >> "$GITHUB_ENV"
+
+      - name: Fill built-in keys
+        env:
+          TRAKT_CLIENT_ID: ${{ secrets.TRAKT_CLIENT_ID }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          FEEDBACK_URL: ${{ secrets.FEEDBACK_URL }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: TMDB_TOKEN="$TMDB_TOKEN_SCRAMBLED" Scripts/fill-secrets.sh
+
+      - name: Build and package (unsigned)
+        run: Scripts/package.sh release Tellio-unsigned.ipa
+
+      # Shows what made it into the build. Never fails the build.
+      - name: Check the build
+        continue-on-error: true
+        run: |
+          APP=xtool/Tellio.app
+          has() { [ -n "$(/usr/libexec/PlistBuddy -c "Print :$1" "$APP/Info.plist" 2>/dev/null)" ]; }
+          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" -c "Print :CFBundleVersion" "$APP/Info.plist"
+          if has TraktClientID; then echo "Trakt: built-in Client ID present"; else echo "Trakt: no built-in Client ID (add the TRAKT_CLIENT_ID secret)"; fi
+          if has TMDBToken; then echo "TMDB: built-in token present"; else echo "TMDB: no built-in token (add the TMDB_TOKEN secret)"; fi
+          if has SentryDSN; then echo "Crash reports: on"; else echo "Crash reports: off (add the SENTRY_DSN secret)"; fi
+          if has FeedbackURL; then echo "Feedback: on"; else echo "Feedback: off (add the FEEDBACK_URL secret)"; fi
+          if has CFBundleIconFile; then echo "App icon: present"; else echo "App icon: missing"; fi
+          echo "--- Frameworks in the IPA ---"
+          unzip -l Tellio-unsigned.ipa | grep -o 'Frameworks/[^/]*\.framework/' | sort -u
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Tellio-iOS-unsigned-ipa
+          path: Tellio-unsigned.ipa
+
+      # Every build of master becomes a GitHub pre-release with the IPA attached.
+      - name: Publish pre-release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="build-${{ github.run_number }}"
+          TITLE="Tellio for iPhone and iPad, build ${{ github.run_number }}"
+          git log -1 --format='%B' | grep -v -e '^Co-Authored-By:' -e '^Claude-Session:' > notes.md
+          # The exact library versions in this build (AetherEngine's licence asks for this).
+          python3 - >> notes.md <<'PY'
+          import json
+          pins = json.load(open("Package.resolved")).get("pins", [])
+          print("\n---\nThird-party components in this build:")
+          for pin in sorted(pins, key=lambda p: p.get("identity", "")):
+              version = pin.get("state", {}).get("version") or pin.get("state", {}).get("revision", "")[:7]
+              print(f"- {pin.get('location', '').removesuffix('.git')} @ {version}")
+          PY
+          cp Tellio-unsigned.ipa Tellio.ipa
+          gh release create "$TAG" Tellio.ipa \
+            --target "${{ github.sha }}" \
+            --title "$TITLE" \
+            --notes-file notes.md \
+            --prerelease
