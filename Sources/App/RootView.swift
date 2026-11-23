@@ -10,7 +10,6 @@ enum AppTab: Hashable {
 struct RootView: View {
     @State private var tab: AppTab = .home
     @State private var showingSettings = false
-    @State private var searchText = ""
 
     var body: some View {
         TabView(selection: $tab) {
@@ -27,10 +26,7 @@ struct RootView: View {
                 ScreenPlaceholder(title: "Sports", detail: "Your teams, live scores and tables")
             }
             Tab(value: .search, role: .search) {
-                NavigationStack {
-                    ScreenPlaceholder(title: "Search", detail: "Films, series and channels")
-                }
-                .searchable(text: $searchText, prompt: "Films, series, channels")
+                SearchView()
             }
         }
         .tabViewStyle(.sidebarAdaptable)

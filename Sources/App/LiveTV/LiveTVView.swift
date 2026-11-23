@@ -329,20 +329,8 @@ struct LiveTVView: View {
     }
 
     private func play(_ channel: XtreamChannel) {
-        let client = settings.xtreamClient
-        guard let url = client.liveURL(for: channel, format: prefs.liveFormat) else { return }
-        let list = shownChannels
-        var recent = settings.prefs.recentChannelIDs.filter { $0 != channel.id }
-        recent.insert(channel.id, at: 0)
-        settings.prefs.recentChannelIDs = Array(recent.prefix(20))
-        SystemPlayer.present(PlaybackRequest(
-            url: url,
-            title: channel.name,
-            subtitle: NowNext.current(epg[channel.id], at: Date())?.title,
-            isLive: true,
-            httpHeaders: client.requestHeaders,
-            live: LiveContext(channels: list, index: list.firstIndex(of: channel) ?? 0)
-        ))
+        ChannelPlayback.play(channel, in: shownChannels, settings: settings,
+                             nowPlaying: NowNext.current(epg[channel.id], at: Date())?.title)
     }
 
     // MARK: - Loading
@@ -402,14 +390,9 @@ struct LiveTVView: View {
         guard !Task.isCancelled else { return }
         loading = true
         defer { loading = false }
-        let all = (try? await XtreamCache.shared.liveStreams(settings.xtreamClient)) ?? []
-        let found = all.filter { channel in
-            settings.isVisible(channel)
-                && !parental.isLocked(categoryID: channel.categoryID ?? "", prefs: prefs)
-                && channel.name.localizedStandardContains(text)
-        }
+        let found = await ChannelPlayback.search(text, settings: settings, parental: parental)
         guard !Task.isCancelled else { return }
-        results = Array(found.prefix(150))
+        results = found
         await loadGuide(for: results)
     }
 
