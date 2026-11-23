@@ -44,9 +44,8 @@ struct HomeView: View {
             }
             .appBackground()
             .toolbarVisibility(.hidden, for: .navigationBar)
-            .navigationDestination(for: TMDBItem.self) { item in
-                TitleView(item: item)
-            }
+            .titleDestinations()
+            .sportsDestinations()
         }
         .task(id: settings.tmdbToken.count) {
             guard trending == nil, !settings.tmdbToken.isEmpty else { return }
@@ -88,8 +87,7 @@ struct HomeView: View {
         case .channels:
             FavouriteChannelsRail()
         case .teams:
-            // Your teams' fixtures arrive with the Sports tab.
-            EmptyView()
+            UpcomingFixturesRail()
         default:
             if let section = Catalog.homeSection(row) {
                 CatalogRail(section: section)

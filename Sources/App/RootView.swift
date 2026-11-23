@@ -24,7 +24,7 @@ struct RootView: View {
                 LiveTVView()
             }
             Tab("Sports", systemImage: "soccerball", value: .sports) {
-                ScreenPlaceholder(title: "Sports", detail: "Your teams, live scores and tables")
+                SportsView()
             }
             Tab(value: .search, role: .search) {
                 SearchView()
@@ -39,27 +39,6 @@ struct RootView: View {
         .onReceive(ReminderStore.shared.$allReminders) { _ in ReminderNotifications.sync() }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
-        }
-    }
-}
-
-/// A tab that isn't built yet: large title and a short note on a glass panel.
-private struct ScreenPlaceholder: View {
-    let title: String
-    let detail: String
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                Text(detail)
-                    .foregroundStyle(.secondary)
-                    .padding(20)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .glassPanel()
-                    .padding(.horizontal, 20)
-            }
-            .appBackground()
-            .navigationTitle(title)
         }
     }
 }
