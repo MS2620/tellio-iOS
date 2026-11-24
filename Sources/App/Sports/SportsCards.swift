@@ -99,7 +99,7 @@ struct FixtureTile: View {
         }
         let session = fixture.sessions.first { $0.date == fixture.guideTime }
         if fixture.isRace && isLive {
-            return "\(session?.name ?? "Race") in progress · \(fixture.competition)"
+            return String(localized: "\(session?.name ?? String(localized: "Race")) in progress · \(fixture.competition)")
         }
         var parts = ["\(DayFormat.label(fixture.guideTime)) \(DayFormat.time(fixture.guideTime))"]
         if let session { parts.append(session.name) }
@@ -223,8 +223,8 @@ struct TeamTile: View {
     let next: Fixture?
 
     private var nextLine: String {
-        guard let next else { return "No fixture soon" }
-        return "Next: \(DayFormat.label(next.guideTime)) \(DayFormat.time(next.guideTime))"
+        guard let next else { return String(localized: "No fixture soon") }
+        return String(localized: "Next: \(DayFormat.label(next.guideTime)) \(DayFormat.time(next.guideTime))")
     }
 
     var body: some View {

@@ -14,16 +14,16 @@ struct RootView: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            Tab("Home", systemImage: "house", value: .home) {
+            Tab(String(localized: "tab.home", defaultValue: "Home", comment: "Tab bar: keep it short, or the tabs crowd the bar"), systemImage: "house", value: .home) {
                 HomeView(showSettings: { showingSettings = true })
             }
-            Tab("Browse", systemImage: "film.stack", value: .browse) {
+            Tab(String(localized: "tab.browse", defaultValue: "Browse", comment: "Tab bar: keep it short, or the tabs crowd the bar"), systemImage: "film.stack", value: .browse) {
                 BrowseView()
             }
-            Tab("Live TV", systemImage: "tv", value: .live) {
+            Tab(String(localized: "tab.liveTV", defaultValue: "Live TV", comment: "Tab bar: keep it short, or the tabs crowd the bar"), systemImage: "tv", value: .live) {
                 LiveTVView()
             }
-            Tab("Sports", systemImage: "soccerball", value: .sports) {
+            Tab(String(localized: "tab.sports", defaultValue: "Sports", comment: "Tab bar: keep it short, or the tabs crowd the bar"), systemImage: "soccerball", value: .sports) {
                 SportsView()
             }
             Tab(value: .search, role: .search) {

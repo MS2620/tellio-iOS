@@ -104,13 +104,13 @@ struct ContentSettingsView: View {
     private var hiddenSummary: String {
         let groups = settings.prefs.hiddenCategoryIDs.count
         let channels = settings.prefs.hiddenChannelIDs.count
-        if groups == 0 && channels == 0 { return "None hidden" }
-        return "\(groups) groups, \(channels) channels hidden"
+        if groups == 0 && channels == 0 { return String(localized: "Nothing hidden") }
+        return String(localized: "\(groups) groups, \(channels) channels hidden")
     }
 
     private var qualitySummary: String {
         let count = settings.prefs.qualitySortCategoryIDs.count
-        return count == 0 ? "Off" : (count == 1 ? "1 group" : "\(count) groups")
+        return count == 0 ? String(localized: "Off") : String(localized: "\(count) groups")
     }
 
     var body: some View {
@@ -154,8 +154,8 @@ struct ContentSettingsView: View {
             SettingsNote("Adds the film and series libraries that come with your IPTV login as extra rows in Browse.")
 
             SettingsGroup("Catalogue") {
-                SettingsOptionRow(title: "Language", icon: "globe", selection: $settings.prefs.tmdbLanguage,
-                                  options: LanguageOptions.tmdb.map { ($0.code, $0.name) })
+                SettingsOptionRow(title: "Language", icon: "globe", selection: $settings.prefs.catalogueLanguage,
+                                  options: LanguageOptions.catalogue)
                 SettingsOptionRow(title: "Region", icon: "mappin.and.ellipse", selection: $settings.prefs.tmdbRegion,
                                   options: LanguageOptions.regions.map { ($0.code, $0.name) })
             }

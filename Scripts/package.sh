@@ -28,6 +28,11 @@ for framework in Sentry; do
     rm -rf "$staging/Payload/Tellio.app/Frameworks/$framework.framework/"{Headers,PrivateHeaders,Modules}
 done
 
+# Tellio's text in every language, from the Apple TV app's String Catalog and this app's
+# own (see Scripts/localize.py). They go in the app itself, where String(localized:) looks.
+python3 Scripts/localize.py "$staging/Payload/Tellio.app" \
+    Vendor/tellio/Resources/Localizable.xcstrings Resources/Localizable.xcstrings
+
 # Frameworks copied from package checkouts (the player engine's FFmpeg) are read-only,
 # and the signer has to rewrite them.
 chmod -R u+w "$staging/Payload"

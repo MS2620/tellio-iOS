@@ -18,7 +18,7 @@ struct ChannelRow: View {
             ChannelLogo(channel: channel)
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
-                    if let number { Text("\(number)").monospacedDigit() }
+                    if let number { Text(verbatim: "\(number)").monospacedDigit() }
                     Text(channel.name).lineLimit(1)
                     if favourite {
                         Image(systemName: "star.fill")
@@ -45,7 +45,7 @@ struct ChannelRow: View {
                             .lineLimit(1)
                     }
                 } else {
-                    Text(folderName ?? (showsGuide && entries == nil ? "Loading guide…" : "No guide information"))
+                    Text(folderName ?? (showsGuide && entries == nil ? String(localized: "Loading guide…") : String(localized: "No guide information")))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)

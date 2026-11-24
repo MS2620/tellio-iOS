@@ -46,7 +46,7 @@ enum Catalog {
     ]
 
     static let movies: [CatalogSection] = [
-        CatalogSection(id: "Trending", style: .landscape) { try await $0.trending(.movie) },
+        CatalogSection(id: "Trending Movies", style: .landscape) { try await $0.trending(.movie) },
         CatalogSection(id: "Popular") { try await $0.popular(.movie) },
         CatalogSection(id: "Now Playing", style: .landscape) { try await $0.list("movie/now_playing", type: .movie) },
         CatalogSection(id: "Upcoming") { try await $0.list("movie/upcoming", type: .movie) },
@@ -56,7 +56,7 @@ enum Catalog {
     }
 
     static let series: [CatalogSection] = [
-        CatalogSection(id: "Trending", style: .landscape) { try await $0.trending(.tv) },
+        CatalogSection(id: "Trending Series", style: .landscape) { try await $0.trending(.tv) },
         CatalogSection(id: "Popular") { try await $0.popular(.tv) },
         CatalogSection(id: "Airing Today", style: .landscape) { try await $0.list("tv/airing_today", type: .tv) },
         CatalogSection(id: "On The Air") { try await $0.list("tv/on_the_air", type: .tv) },

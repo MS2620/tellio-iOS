@@ -2,16 +2,17 @@ import SwiftUI
 
 /// Which sport the team search is narrowed to.
 private enum SportFilter: String, CaseIterable, Identifiable {
-    case all, football, f1, rugby, nfl, nba, nhl, mlb
+    case all, football, f1, rugby, cricket, nfl, nba, nhl, mlb
 
     var id: String { rawValue }
 
     var label: String {
         switch self {
-        case .all: return "All"
-        case .football: return "Football"
-        case .f1: return "Formula 1"
-        case .rugby: return "Rugby"
+        case .all: return String(localized: "All")
+        case .football: return String(localized: "Football")
+        case .f1: return String(localized: "Formula 1")
+        case .rugby: return String(localized: "Rugby")
+        case .cricket: return String(localized: "Cricket")
         case .nfl: return "NFL"
         case .nba: return "NBA"
         case .nhl: return "NHL"
@@ -24,7 +25,8 @@ private enum SportFilter: String, CaseIterable, Identifiable {
         case .all: return true
         case .football: return result.sport == "soccer"
         case .f1: return result.sport == "f1"
-        case .rugby: return result.sport == "rugby"
+        case .rugby: return result.sport == "rugby" || result.sport == SuperLeagueClient.sport
+        case .cricket: return result.sport == "cricket"
         case .nfl: return result.league == "nfl"
         case .nba: return result.league == "nba"
         case .nhl: return result.league == "nhl"
@@ -112,8 +114,13 @@ struct TeamsManagerView: View {
                     NavigationLink { F1TeamsView() } label: {
                         Label("Formula 1", systemImage: "flag.checkered")
                     }
-                    NavigationLink { LeagueListView(title: "Rugby", leagues: SportsCatalog.rugby) } label: {
+                    NavigationLink {
+                        LeagueListView(title: "Rugby", leagues: SportsCatalog.rugby + SportsCatalog.rugbyLeague)
+                    } label: {
                         Label("Rugby", systemImage: "figure.rugby")
+                    }
+                    NavigationLink { CricketLeaguesView() } label: {
+                        Label("Cricket", systemImage: "figure.cricket")
                     }
                     ForEach(SportsCatalog.us) { league in
                         NavigationLink { TeamPickerView(league: league) } label: {
@@ -162,9 +169,11 @@ struct TeamsManagerView: View {
 
     private func leagueName(_ result: TeamSearchResult) -> String {
         switch result.sport {
-        case "f1": return "Formula 1"
-        case "soccer": return leagueNames[result.league] ?? "Football"
-        case "rugby": return SportsCatalog.rugby.first { $0.slug == result.league }?.name ?? "Rugby"
+        case "f1": return String(localized: "Formula 1")
+        case "soccer": return leagueNames[result.league] ?? String(localized: "Football")
+        case "rugby": return SportsCatalog.rugby.first { $0.slug == result.league }?.name ?? String(localized: "Rugby")
+        case SuperLeagueClient.sport: return SuperLeagueClient.league.name
+        case "cricket": return String(localized: "Cricket")
         default: return result.league.uppercased()
         }
     }
@@ -172,13 +181,14 @@ struct TeamsManagerView: View {
     private func describe(_ result: TeamSearchResult) -> String {
         let sport: String
         switch result.sport {
-        case "f1": return "Formula 1"
-        case "soccer": sport = "Football"
-        case "rugby": sport = "Rugby"
-        case "football": sport = "American football"
-        case "basketball": sport = "Basketball"
-        case "hockey": sport = "Ice hockey"
-        case "baseball": sport = "Baseball"
+        case "f1": return String(localized: "Formula 1")
+        case "soccer": sport = String(localized: "Football")
+        case "rugby", SuperLeagueClient.sport: sport = String(localized: "Rugby")
+        case "cricket": sport = String(localized: "Cricket")
+        case "football": sport = String(localized: "American football")
+        case "basketball": sport = String(localized: "Basketball")
+        case "hockey": sport = String(localized: "Ice hockey")
+        case "baseball": sport = String(localized: "Baseball")
         default: sport = result.sport.capitalized
         }
         let league = leagueName(result)
@@ -259,11 +269,27 @@ private struct FootballLeaguesView: View {
         .task {
             do {
                 leagues = try await ESPNClient().footballLeagues()
-                if leagues.isEmpty { error = "No leagues found." }
+                if leagues.isEmpty { error = String(localized: "No leagues found.") }
             } catch {
-                self.error = "Couldn't load leagues: \(error.localizedDescription)"
+                self.error = String(localized: "Couldn't load leagues: \(error.localizedDescription)")
             }
         }
+    }
+}
+
+/// International sides, then the competitions with cricket in the next 30 days.
+private struct CricketLeaguesView: View {
+    @State private var leagues: [SportLeague] = []
+
+    var body: some View {
+        Group {
+            if leagues.isEmpty {
+                ProgressView()
+            } else {
+                LeagueListView(title: "Cricket", leagues: leagues)
+            }
+        }
+        .task { leagues = await CricketClient().leagues() }
     }
 }
 
@@ -282,7 +308,7 @@ private struct LeagueListView: View {
         }
         .scrollContentBackground(.hidden)
         .appBackground()
-        .navigationTitle(title)
+        .navigationTitle(title.localizedUI)
         .searchable(text: $filter, prompt: "Find a competition")
     }
 }
@@ -319,7 +345,7 @@ private struct TeamPickerView: View {
             do {
                 teams = try await ESPNClient().teams(in: league)
             } catch {
-                self.error = "Couldn't load teams: \(error.localizedDescription)"
+                self.error = String(localized: "Couldn't load teams: \(error.localizedDescription)")
             }
             loading = false
         }
@@ -377,7 +403,7 @@ private struct F1TeamsView: View {
             do {
                 constructors = try await F1Client().constructors()
             } catch {
-                self.error = "Couldn't load teams: \(error.localizedDescription)"
+                self.error = String(localized: "Couldn't load teams: \(error.localizedDescription)")
             }
             loading = false
         }

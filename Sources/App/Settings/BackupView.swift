@@ -51,7 +51,7 @@ struct BackupView: View {
         do {
             newCode = try await backup.backUp(settings: settings)
         } catch {
-            message = "Backup failed: \(error.localizedDescription)"
+            message = String(localized: "Backup failed: \(error.localizedDescription)")
         }
     }
 }
@@ -150,7 +150,7 @@ struct RestoreView: View {
             try await backup.restore(code: cleanedCode, settings: settings)
             message = "Restored. Everything from the backup is in place."
         } catch {
-            message = "Restore failed: \(error.localizedDescription)"
+            message = String(localized: "Restore failed: \(error.localizedDescription)")
         }
     }
 }

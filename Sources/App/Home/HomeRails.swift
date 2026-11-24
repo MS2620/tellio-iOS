@@ -27,7 +27,7 @@ struct CatalogRail: View {
                 }
             }
         }
-        .task(id: "\(settings.tmdbToken.count)|\(settings.prefs.tmdbLanguage)|\(settings.prefs.tmdbRegion)") {
+        .task(id: "\(settings.tmdbToken.count)|\(settings.prefs.catalogueLanguageInUse)|\(settings.prefs.tmdbRegion)") {
             guard !settings.tmdbToken.isEmpty else { return }
             do {
                 items = try await section.fetch(settings.tmdb)
@@ -107,8 +107,8 @@ struct ContinueWatchingRail: View {
                   let next = nextEpisodes[entry.id] else { return nil }
             let target = StreamTarget.episode(item: item, imdbID: imdbID, season: next.season,
                                               episode: next.episode, name: next.name)
-            return Card(id: "next-\(item.uid)", entry: entry, target: target, line: "Next: S\(next.season) · E\(next.episode)",
-                        fraction: nil, badge: next.isNew ? "NEW EPISODE" : "UP NEXT",
+            return Card(id: "next-\(item.uid)", entry: entry, target: target, line: String(localized: "Next: S\(next.season) · E\(next.episode)"),
+                        fraction: nil, badge: next.isNew ? String(localized: "NEW EPISODE") : String(localized: "UP NEXT"),
                         imageURL: next.stillURL ?? item.backdropURL)
         }
         .prefix(20)
@@ -137,7 +137,7 @@ struct ContinueWatchingRail: View {
                                 }
                             }
                             NavigationLink(value: card.entry.item) {
-                                Label("Go to \(card.entry.item.kind == .movie ? "film" : "series")", systemImage: "info.circle")
+                                Label(card.entry.item.kind == .movie ? "Go to film" : "Go to series", systemImage: "info.circle")
                             }
                             Button("Remove from Continue Watching", systemImage: "xmark.circle", role: .destructive) {
                                 history.remove(card.entry.item)

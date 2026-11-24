@@ -213,7 +213,7 @@ struct MultiviewScreen: View {
                 .background(.black.opacity(0.45), in: .circle)
                 .contentShape(.circle)
         }
-        .accessibilityLabel(label)
+        .accessibilityLabel(label.localizedUI)
     }
 
     private func showControls() {
@@ -329,7 +329,7 @@ private struct MultiviewTile: View {
         }
         .contentShape(.rect)
         .accessibilityElement(children: .contain)
-        .accessibilityLabel(channel.name + (audible ? ", playing sound" : ""))
+        .accessibilityLabel(audible ? String(localized: "\(channel.name), playing sound") : channel.name)
     }
 }
 

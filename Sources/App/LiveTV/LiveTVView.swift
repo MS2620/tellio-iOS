@@ -99,7 +99,7 @@ struct LiveTVView: View {
             Button("Unlock") { unlock() }
             Button("Cancel", role: .cancel) { pin = "" }
         } message: {
-            Text(wrongPIN ? "That PIN isn't right. Try again." : "\(pendingGroup?.name ?? "This group") is locked.")
+            Text(wrongPIN ? "That PIN isn't right. Try again." : "\(pendingGroup?.name ?? String(localized: "This group")) is locked.")
         }
         .alert("Rename channel", isPresented: Binding(get: { renaming != nil }, set: { if !$0 { renaming = nil } })) {
             TextField("Name", text: $newName)
@@ -284,9 +284,8 @@ struct LiveTVView: View {
 
     private var infoText: String {
         let count = shownChannels.count
-        let channelsText = count == 1 ? "1 CHANNEL" : "\(count) CHANNELS"
-        if !query.isEmpty { return channelsText + " FOUND" }
-        return channelsText + " · " + settings.xtream.displayName
+        if !query.isEmpty { return String(localized: "\(count) CHANNELS FOUND") }
+        return String(localized: "\(count) CHANNELS") + " · " + settings.xtream.displayName
     }
 
     @ViewBuilder

@@ -61,7 +61,7 @@ struct CalendarList: View {
     }
 
     private func note(_ text: String) -> some View {
-        Text(text)
+        Text(text.localizedUI)
             .font(.subheadline)
             .foregroundStyle(.secondary)
             .padding(.horizontal, 20)
@@ -147,7 +147,7 @@ private struct CalendarRow: View {
                 Text(entry.show.displayTitle)
                     .font(.subheadline.weight(.bold))
                     .lineLimit(1)
-                Text("S\(entry.episode.seasonNumber) · E\(entry.episode.episodeNumber)"
+                Text(verbatim: "S\(entry.episode.seasonNumber) · E\(entry.episode.episodeNumber)"
                      + (entry.episode.name.map { " · \($0)" } ?? ""))
                     .font(.caption)
                     .foregroundStyle(.secondary)

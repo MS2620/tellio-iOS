@@ -19,8 +19,8 @@ struct StreamTarget: Identifiable, Hashable {
 
     static func episode(item: TMDBItem, imdbID: String, season: Int, episode: Int, name: String?) -> StreamTarget {
         StreamTarget(type: "series", id: "\(imdbID):\(season):\(episode)", title: item.displayTitle,
-                     subtitle: "S\(season)E\(episode) · \(name ?? "Episode \(episode)")",
-                     kicker: "SEASON \(season) · EPISODE \(episode)", detail: name,
+                     subtitle: "S\(season)E\(episode) · \(name ?? String(localized: "Episode \(episode)"))",
+                     kicker: String(localized: "SEASON \(season) · EPISODE \(episode)"), detail: name,
                      posterURL: item.posterURL, backdropURL: item.backdropURL,
                      watch: WatchContext(item: item, imdbID: imdbID, season: season, episode: episode,
                                          episodeName: name))
@@ -54,7 +54,7 @@ enum StreamQuality: Int, CaseIterable, Hashable {
         case .fhd: return "1080p"
         case .hd: return "720p"
         case .sd: return "SD"
-        case .unknown: return "Other"
+        case .unknown: return String(localized: "Other")
         }
     }
 
@@ -116,7 +116,7 @@ struct StreamsView: View {
         .navigationTitle("Streams")
         .navigationBarTitleDisplayMode(.inline)
         .task { await search() }
-        .confirmationDialog(resumeEntry.map { "You stopped at \(Self.time($0.position))" } ?? "",
+        .confirmationDialog(resumeEntry.map { String(localized: "You stopped at \(Self.time($0.position))") } ?? "",
                             isPresented: Binding(get: { resumeChoice != nil }, set: { if !$0 { resumeChoice = nil } }),
                             titleVisibility: .visible, presenting: resumeChoice) { result in
             Button("Resume from \(Self.time(resumeEntry?.position ?? 0))") {
@@ -169,7 +169,7 @@ struct StreamsView: View {
     private var filters: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                chip("All · \(results.count)", selected: filter == nil) { filter = nil }
+                chip(String(localized: "All · \(results.count)"), selected: filter == nil) { filter = nil }
                 ForEach(StreamQuality.allCases.filter { (counts[$0] ?? 0) > 0 }, id: \.self) { quality in
                     chip("\(quality.label) · \(counts[quality] ?? 0)", selected: filter == quality) { filter = quality }
                 }
@@ -193,7 +193,7 @@ struct StreamsView: View {
     @ViewBuilder
     private var content: some View {
         if loading {
-            ProgressView("Searching \(settings.addons.count) addon\(settings.addons.count == 1 ? "" : "s")…")
+            ProgressView("Searching \(settings.addons.count) addons…")
                 .frame(maxWidth: .infinity)
                 .padding(.top, 40)
         } else if results.isEmpty {
@@ -204,8 +204,8 @@ struct StreamsView: View {
                 .padding(.top, 20)
         } else {
             let addonCount = Set(results.map(\.addonName)).count
-            Text("\(results.count) STREAM\(results.count == 1 ? "" : "S") FROM \(addonCount) ADDON\(addonCount == 1 ? "" : "S")"
-                 + (settings.prefs.streamSort == .quality ? " · BEST FIRST" : ""))
+            Text(verbatim: String(localized: "\(results.count) streams from \(addonCount) addons").uppercased()
+                 + (settings.prefs.streamSort == .quality ? " · " + String(localized: "Best first").uppercased() : ""))
                 .font(.caption.weight(.heavy))
                 .foregroundStyle(.secondary)
         }
@@ -213,7 +213,7 @@ struct StreamsView: View {
             Text(note).font(.footnote).foregroundStyle(.secondary)
         }
         if lockedAddons > 0 && !loading {
-            Button("\(lockedAddons) locked addon\(lockedAddons == 1 ? "" : "s") · Enter PIN", systemImage: "lock.fill") {
+            Button("\(lockedAddons) locked addons · Enter PIN", systemImage: "lock.fill") {
                 askingPIN = true
             }
             .buttonStyle(.glass)
@@ -291,8 +291,8 @@ struct StreamsView: View {
         let skipped = found.count - playable.count
         results = arrange(playable)
         loading = false
-        if !failures.isEmpty { notes.append("Couldn't reach: " + failures.sorted().joined(separator: ", ")) }
-        if skipped > 0 { notes.append("\(skipped) torrent-only result\(skipped == 1 ? "" : "s") hidden.") }
+        if !failures.isEmpty { notes.append(String(localized: "Couldn't reach: \(failures.sorted().joined(separator: ", "))")) }
+        if skipped > 0 { notes.append(String(localized: "\(skipped) torrent-only results hidden.")) }
 
         if prefs.autoPlayFirstStream, let first = results.first {
             choose(first)

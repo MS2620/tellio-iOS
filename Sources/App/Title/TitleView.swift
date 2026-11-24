@@ -21,17 +21,17 @@ struct TitleView: View {
         if item.kind == .movie {
             let entry = history.entry(item: item)
             return (.movie(item: item, imdbID: imdbID),
-                    entry?.isResumable == true ? "Resume · \(entry!.timeLeftLabel)" : "Play")
+                    entry?.isResumable == true ? String(localized: "Resume · \(entry!.timeLeftLabel)") : String(localized: "Play"))
         }
         if let latest = history.latestEpisode(of: item), latest.isResumable,
            let season = latest.context.season, let episode = latest.context.episode {
             return (.episode(item: item, imdbID: imdbID, season: season, episode: episode,
                              name: latest.context.episodeName),
-                    "Resume S\(season) · E\(episode)")
+                    String(localized: "Resume S\(season) · E\(episode)"))
         }
         guard let first = seasons.first else { return nil }
         return (.episode(item: item, imdbID: imdbID, season: first.seasonNumber, episode: 1, name: nil),
-                "Play S\(first.seasonNumber) · E1")
+                String(localized: "Play S\(first.seasonNumber) · E1"))
     }
 
     private var seasons: [TVSeasonSummary] {
@@ -142,14 +142,14 @@ struct TitleView: View {
             parts.append(runtime >= 60 ? "\(runtime / 60)h \(runtime % 60)m" : "\(runtime)m")
         }
         if let count = details?.numberOfSeasons {
-            parts.append(count == 1 ? "1 season" : "\(count) seasons")
+            parts.append(String(localized: "\(count) seasons"))
         }
         return parts
     }
 
     private var castLine: String? {
         guard let cast = details?.credits?.cast, !cast.isEmpty else { return nil }
-        return "Starring " + cast.prefix(4).map(\.name).joined(separator: ", ")
+        return String(localized: "Starring \(cast.prefix(4).map(\.name).joined(separator: ", "))")
     }
 
     private var seasonSection: some View {
@@ -159,10 +159,10 @@ struct TitleView: View {
                 Spacer()
                 Menu {
                     ForEach(seasons, id: \.seasonNumber) { summary in
-                        Button(summary.name ?? "Season \(summary.seasonNumber)") { season = summary.seasonNumber }
+                        Button(summary.name ?? String(localized: "Season \(summary.seasonNumber)")) { season = summary.seasonNumber }
                     }
                 } label: {
-                    Label(seasons.first { $0.seasonNumber == season }?.name ?? "Season \(season ?? 1)",
+                    Label(seasons.first { $0.seasonNumber == season }?.name ?? String(localized: "Season \(season ?? 1)"),
                           systemImage: "chevron.up.chevron.down")
                         .font(.subheadline.weight(.bold))
                 }
@@ -255,7 +255,7 @@ private struct EpisodeRow: View {
                     }
                 }
             VStack(alignment: .leading, spacing: 4) {
-                Text("\(episode.episodeNumber). \(episode.name ?? "Episode \(episode.episodeNumber)")")
+                Text(verbatim: "\(episode.episodeNumber). \(episode.name ?? String(localized: "Episode \(episode.episodeNumber)"))")
                     .font(.subheadline.weight(.bold))
                     .lineLimit(2)
                 Text(detail)
@@ -278,7 +278,7 @@ private struct EpisodeRow: View {
     private var detail: String {
         var parts: [String] = []
         if let air = DayFormat.parseDay(episode.airDate) {
-            parts.append(air > Date() ? "Airs " + air.formatted(date: .abbreviated, time: .omitted)
+            parts.append(air > Date() ? String(localized: "Airs \(air.formatted(date: .abbreviated, time: .omitted))")
                                       : air.formatted(date: .abbreviated, time: .omitted))
         }
         if let runtime = episode.runtime, runtime > 0 { parts.append("\(runtime)m") }

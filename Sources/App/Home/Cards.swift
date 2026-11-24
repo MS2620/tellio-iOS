@@ -35,7 +35,7 @@ struct RailTitle: View {
     let text: String
 
     var body: some View {
-        Text(text)
+        Text(text.localizedUI)
             .font(.title3.weight(.heavy))
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -100,7 +100,7 @@ struct BackdropCard: View {
                 .font(.subheadline.weight(.bold))
                 .lineLimit(1)
                 .frame(width: width, alignment: .leading)
-            Text([item.kind == .movie ? "Film" : "Series", item.year].compactMap { $0 }.joined(separator: " · "))
+            Text([item.kind == .movie ? String(localized: "Film") : String(localized: "Series"), item.year].compactMap { $0 }.joined(separator: " · "))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

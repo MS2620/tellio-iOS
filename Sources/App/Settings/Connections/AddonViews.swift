@@ -37,7 +37,7 @@ struct AddonDetailView: View {
             SettingsGroup("Order") {
                 Button { move(by: -1) } label: {
                     SettingsRowLabel(title: "Move up", icon: "arrow.up",
-                                     value: index.map { "\($0 + 1) of \(settings.addons.count)" })
+                                     value: index.map { String(localized: "\($0 + 1) of \(settings.addons.count)") })
                 }
                 .buttonStyle(.plain)
                 .disabled((index ?? 0) == 0)

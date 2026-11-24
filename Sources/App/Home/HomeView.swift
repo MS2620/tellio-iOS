@@ -11,13 +11,13 @@ struct HomeView: View {
     /// What you were last watching, else the first title of My List, else what's trending.
     private var hero: (item: TMDBItem, kicker: String)? {
         if let entry = history.latestPerTitle.first(where: \.isResumable) {
-            return (entry.item, "CONTINUE WATCHING")
+            return (entry.item, String(localized: "CONTINUE WATCHING"))
         }
         if settings.visibleHomeRows.contains(.myList), let first = settings.prefs.myList.last {
-            return (first, "MY LIST")
+            return (first, String(localized: "MY LIST"))
         }
         if let trending {
-            return (trending, "TRENDING · " + (trending.kind == .movie ? "FILM" : "SERIES"))
+            return (trending, trending.kind == .movie ? String(localized: "TRENDING · FILM") : String(localized: "TRENDING · SERIES"))
         }
         return nil
     }

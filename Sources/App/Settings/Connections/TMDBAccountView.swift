@@ -28,8 +28,8 @@ struct TMDBAccountView: View {
                 : "Free from themoviedb.org › Settings › API. Use the long \"API Read Access Token\", not the short API key.")
 
             SettingsGroup("Catalogue") {
-                SettingsPickerRow(title: "Language", icon: "globe", selection: $settings.prefs.tmdbLanguage,
-                                  options: LanguageOptions.tmdb)
+                SettingsOptionRow(title: "Language", icon: "globe", selection: $settings.prefs.catalogueLanguage,
+                                  options: LanguageOptions.catalogue)
                 SettingsPickerRow(title: "Region", icon: "mappin.and.ellipse", selection: $settings.prefs.tmdbRegion,
                                   options: LanguageOptions.regions)
             }

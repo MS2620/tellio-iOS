@@ -16,9 +16,9 @@ struct PlayerSettingsView: View {
 
             SettingsGroup("Skipping") {
                 SettingsOptionRow(title: "Skip back", icon: "gobackward", selection: $settings.prefs.seekBackSeconds,
-                                  options: Self.seekOptions.map { ($0, "\($0) seconds") })
+                                  options: Self.seekOptions.map { ($0, String(localized: "\($0) seconds")) })
                 SettingsOptionRow(title: "Skip forward", icon: "goforward", selection: $settings.prefs.seekForwardSeconds,
-                                  options: Self.seekOptions.map { ($0, "\($0) seconds") })
+                                  options: Self.seekOptions.map { ($0, String(localized: "\($0) seconds")) })
             }
             SettingsNote("The skip buttons in the player, and double-tapping the left or right side of the picture.")
 

@@ -40,7 +40,7 @@ struct PINEntryView: View {
             }
             .offset(x: shake)
             .accessibilityElement()
-            .accessibilityLabel("\(digits.count) of 4 digits entered")
+            .accessibilityLabel(Text("\(digits.count) of 4 digits entered"))
             Text(message ?? " ")
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(Theme.danger)
@@ -129,7 +129,7 @@ struct PINEntryView: View {
     }
 
     private func wrong(_ text: String) {
-        message = text
+        message = text.localizedUI
         UINotificationFeedbackGenerator().notificationOccurred(.error)
         Task { @MainActor in
             for offset in [-14.0, 14, -9, 9, -4, 0] {

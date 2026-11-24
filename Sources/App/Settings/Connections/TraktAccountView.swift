@@ -14,7 +14,7 @@ struct TraktAccountView: View {
 
     private var state: ConnectionState {
         if let error = trakt.lastError { return .problem(error) }
-        if trakt.isSignedIn { return .good("Signed in" + (trakt.username.map { " as \($0)" } ?? "")) }
+        if trakt.isSignedIn { return .good(trakt.username.map { String(localized: "Signed in as \($0)") } ?? String(localized: "Signed in")) }
         if code != nil { return .checking("Waiting for you to approve…") }
         return .off(trakt.hasApp ? "Not signed in" : "Add a Trakt Client ID first")
     }
@@ -41,7 +41,7 @@ struct TraktAccountView: View {
                     } label: {
                         SettingsRowLabel(title: trakt.syncing ? "Syncing…" : "Sync now",
                                          subtitle: trakt.lastSync.map {
-                                             "Last synced " + $0.formatted(.relative(presentation: .named))
+                                             String(localized: "Last synced \($0.formatted(.relative(presentation: .named)))")
                                          },
                                          icon: "arrow.triangle.2.circlepath")
                     }
@@ -149,7 +149,7 @@ struct TraktAccountView: View {
             codeStarted = Date()
             code = fresh
         } catch {
-            signInMessage = "Couldn't start sign-in: \(error.localizedDescription). Check the client ID."
+            signInMessage = String(localized: "Couldn't start sign-in: \(error.localizedDescription). Check the client ID.")
         }
     }
 

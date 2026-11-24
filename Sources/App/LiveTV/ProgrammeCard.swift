@@ -80,7 +80,7 @@ struct ProgrammeCard: View {
         var parts: [String] = []
         if let start = entry?.start, let end = entry?.end {
             if start <= now && now < end {
-                parts.append("NOW · \(DayFormat.time(start)) – \(DayFormat.time(end))")
+                parts.append(String(localized: "NOW · \(DayFormat.time(start)) – \(DayFormat.time(end))"))
             } else {
                 let day = Calendar.current.isDateInToday(start) ? "" : DayFormat.label(start) + " "
                 parts.append(day + DayFormat.time(start))

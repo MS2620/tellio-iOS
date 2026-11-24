@@ -37,6 +37,15 @@ let package = Package(
                 // resources, so these would otherwise be picked up (e.g. the tvOS icon catalog).
                 // Resources/Licenses is kept: Settings › About › Acknowledgements shows them.
                 "\(shared)/Resources/Assets.xcassets",
+                // Translations go into the app itself (see Scripts/localize.py), where
+                // String(localized:) looks for them, not into this package's resource bundle.
+                "\(shared)/Resources/Localizable.xcstrings",
+                "\(shared)/Resources/en.lproj",
+                "\(shared)/Resources/es.lproj",
+                "\(shared)/Resources/de.lproj",
+                "\(shared)/Resources/fr.lproj",
+                "\(shared)/Resources/pt-PT.lproj",
+                "\(shared)/Resources/pl.lproj",
                 "\(shared)/TopShelf",
                 "\(shared)/Sources/Player",
                 "\(shared)/server",
