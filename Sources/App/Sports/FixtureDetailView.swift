@@ -204,10 +204,12 @@ struct FixtureDetailView: View {
                             .padding(16)
                     }
                 }
-                ForEach(AddonSports.grouped(addonHits.filter { $0.kind != .sportChannel })) { group in
+                let sections = AddonSports.sections(addonHits)
+                ForEach(sections.matches) { group in
                     addonRow(group)
                 }
-                let maybe = AddonSports.grouped(addonHits.filter { $0.kind == .sportChannel })
+                // Only when nothing names the game: channels for its sport that may be showing it.
+                let maybe = sections.maybe
                 if !maybe.isEmpty {
                     Text("CHANNELS FOR THIS SPORT · MAY BE SHOWING IT")
                         .font(.caption2.weight(.bold))
@@ -231,7 +233,7 @@ struct FixtureDetailView: View {
         }
     }
 
-    /// Several sources (the same thing from different addons): tap plays the first, long-press lists them.
+    /// Several sources (from different addons, or one addon's streams): tap plays the first, long-press lists them.
     private func addonRow(_ group: AddonSportsGroup) -> some View {
         let hit = group.first
         return Button {
@@ -243,7 +245,7 @@ struct FixtureDetailView: View {
                     .frame(width: 30, height: 30)
                     .background(.white.opacity(0.16), in: .rect(cornerRadius: 8))
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(hit.title)
+                    Text(group.title)
                         .font(.subheadline.weight(.bold))
                         .lineLimit(2)
                     Text(group.subtitle)
@@ -261,8 +263,8 @@ struct FixtureDetailView: View {
         .buttonStyle(.plain)
         .contextMenu {
             if group.hits.count > 1 {
-                ForEach(group.hits) { source in
-                    Button("\(source.addonName) · \(source.stream.headline)", systemImage: "play.fill") { playAddon(source) }
+                ForEach(Array(group.hits.enumerated()), id: \.element.id) { index, source in
+                    Button(source.chooserLabel(number: index + 1), systemImage: "play.fill") { playAddon(source) }
                 }
             }
         }
