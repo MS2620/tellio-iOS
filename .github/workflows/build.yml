@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths-ignore: ["**.md", "LICENSE", "docs/**"]   # text-only edits don't need a build
   pull_request:
   workflow_dispatch:
@@ -18,7 +18,7 @@ env:
 
 jobs:
   # Builds the app (unsigned) on every push, so you know the code builds, and publishes
-  # each build of master as a pre-release with Tellio.ipa attached.
+  # each build of main as a pre-release with Tellio.ipa attached.
   build:
     runs-on: xcode-27  # AetherEngine needs Xcode 27; the same runner as the Apple TV build
     permissions:
@@ -121,9 +121,9 @@ jobs:
           name: Tellio-iOS-unsigned-ipa
           path: Tellio-unsigned.ipa
 
-      # Every build of master becomes a GitHub pre-release with the IPA attached.
+      # Every build of main becomes a GitHub pre-release with the IPA attached.
       - name: Publish pre-release
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -150,7 +150,7 @@ jobs:
       # newest builds. It lives alone on the altstore branch, so its raw address always holds a
       # complete file: https://raw.githubusercontent.com/MS2620/tellio-iOS/altstore/altstore.json
       - name: Update the AltStore source
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

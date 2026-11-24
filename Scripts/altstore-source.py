@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 
 KEEP = 10
 TINT = "6E5BFF"
-ICON = "https://raw.githubusercontent.com/MS2620/tellio-iOS/master/Resources/AppIcon.png"
+ICON = "https://raw.githubusercontent.com/MS2620/tellio-iOS/main/Resources/AppIcon.png"
 
 PLATFORMS = {
     "ios": {
