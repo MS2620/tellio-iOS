@@ -9,10 +9,15 @@ struct SportsView: View {
     @ObservedObject private var router = AppRouter.shared
     @State private var fixtures: [Fixture] = []
     @State private var loading = false
+    /// Today's games in each followed competition that has some.
+    @State private var competitionGames: [(competition: FavouriteCompetition, fixtures: [Fixture])] = []
+    @State private var loadingCompetitions = false
 
     private var teams: [FavouriteTeam] { settings.prefs.favouriteTeams }
     private var days: Int { settings.prefs.sportsDaysAhead }
     private var loadKey: String { teams.map(\.id).joined(separator: ",") + "|\(days)" }
+    private var competitions: [FavouriteCompetition] { settings.prefs.favouriteCompetitions }
+    private var competitionsKey: String { competitions.map(\.id).joined(separator: ",") }
 
     /// On today, or already under way.
     private var today: [Fixture] {
@@ -70,6 +75,8 @@ struct SportsView: View {
                         }
                     }
 
+                    competitionsSection
+
                     if !later.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
                             RailTitle(text: "Coming up")
@@ -115,11 +122,58 @@ struct SportsView: View {
                     }
                 }
             }
-            .refreshable { await load() }
+            .refreshable {
+                async let teams: Void = load()
+                async let others: Void = loadCompetitions()
+                _ = await (teams, others)
+            }
             .task(id: loadKey) { await load() }
+            .task(id: competitionsKey) { await loadCompetitions() }
             .task { await liveScores.run() }
             .sportsDestinations()
         }
+    }
+
+    /// Today in your competitions: every game of the day in each followed competition, for
+    /// quick access to matches your teams aren't in. Fixtures and tables stay your teams'.
+    @ViewBuilder
+    private var competitionsSection: some View {
+        if !competitions.isEmpty {
+            if competitionGames.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    RailTitle(text: "Today in your competitions")
+                    Group {
+                        if loadingCompetitions {
+                            ProgressView()
+                        } else {
+                            Text("No games today in your competitions.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+            }
+            ForEach(competitionGames, id: \.competition.id) { entry in
+                Rail(title: String(localized: "\(entry.competition.name) · \(entry.fixtures.count) today")) {
+                    ForEach(entry.fixtures) { fixture in
+                        NavigationLink(value: fixture) { FixtureTile(fixture: fixture, width: 300) }
+                            .buttonStyle(.plain)
+                            .matchReminderMenu(fixture)
+                    }
+                }
+            }
+        }
+    }
+
+    private func loadCompetitions() async {
+        guard !competitions.isEmpty else {
+            competitionGames = []
+            return
+        }
+        loadingCompetitions = true
+        competitionGames = await SportsLoader.today(in: competitions, teams: teams)
+        loadingCompetitions = false
     }
 
     private func load() async {
