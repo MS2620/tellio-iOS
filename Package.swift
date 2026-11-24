@@ -49,6 +49,8 @@ let package = Package(
                 "\(shared)/TopShelf",
                 "\(shared)/Sources/Player",
                 "\(shared)/server",
+                // The shared code's own checks, built separately by its Scripts/test-matching.sh.
+                "\(shared)/Tests",
                 // Build output: the last built app holds the engine's resource files, which
                 // would otherwise be read back in as this target's resources.
                 "xtool",
