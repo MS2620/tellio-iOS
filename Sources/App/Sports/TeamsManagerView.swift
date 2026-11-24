@@ -107,6 +107,20 @@ struct TeamsManagerView: View {
                     }
                 }
 
+                if !settings.prefs.favouriteCompetitions.isEmpty {
+                    Section {
+                        ForEach(settings.prefs.favouriteCompetitions) { competition in
+                            Label(competition.name, systemImage: "trophy")
+                        }
+                        .onDelete { settings.prefs.favouriteCompetitions.remove(atOffsets: $0) }
+                        .onMove { settings.prefs.favouriteCompetitions.move(fromOffsets: $0, toOffset: $1) }
+                    } header: {
+                        Text("Competitions · \(settings.prefs.favouriteCompetitions.count)")
+                    } footer: {
+                        Text("Their games today show in Sports, without following every team. Swipe left to stop following one.")
+                    }
+                }
+
                 Section("Browse by league") {
                     NavigationLink { FootballLeaguesView() } label: {
                         Label("Football", systemImage: "soccerball")
@@ -296,6 +310,7 @@ private struct CricketLeaguesView: View {
 private struct LeagueListView: View {
     let title: String
     let leagues: [SportLeague]
+    @EnvironmentObject private var settings: AppSettings
     @State private var filter = ""
 
     private var shown: [SportLeague] {
@@ -304,7 +319,17 @@ private struct LeagueListView: View {
 
     var body: some View {
         List(shown) { league in
-            NavigationLink(league.name) { TeamPickerView(league: league) }
+            NavigationLink { TeamPickerView(league: league) } label: {
+                HStack {
+                    Text(league.name)
+                    Spacer()
+                    if settings.prefs.favouriteCompetitions.contains(where: { $0.id == league.id }) {
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(.yellow)
+                            .accessibilityLabel("Following competition")
+                    }
+                }
+            }
         }
         .scrollContentBackground(.hidden)
         .appBackground()
@@ -320,8 +345,29 @@ private struct TeamPickerView: View {
     @State private var loading = true
     @State private var error: String?
 
+    private var followsCompetition: Bool {
+        settings.prefs.favouriteCompetitions.contains { $0.id == league.id }
+    }
+
     var body: some View {
         List {
+            if FavouriteCompetition.canFollow(league) {
+                Section {
+                    Button {
+                        if followsCompetition {
+                            settings.prefs.favouriteCompetitions.removeAll { $0.id == league.id }
+                        } else {
+                            settings.prefs.favouriteCompetitions.append(FavouriteCompetition(league))
+                        }
+                    } label: {
+                        Label(followsCompetition ? String(localized: "Following competition") : String(localized: "Follow competition"),
+                              systemImage: followsCompetition ? "star.fill" : "star")
+                            .font(.subheadline.weight(.bold))
+                    }
+                } footer: {
+                    Text("Shows its games today in Sports, without following every team.")
+                }
+            }
             if loading {
                 ProgressView().frame(maxWidth: .infinity)
             } else if let error {

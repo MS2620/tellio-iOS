@@ -116,6 +116,12 @@ struct SportsSettingsView: View {
                 SettingsLink(title: "My Teams", icon: "star", value: "\(settings.prefs.favouriteTeams.count)") {
                     TeamsManagerView()
                 }
+                if !settings.prefs.favouriteCompetitions.isEmpty {
+                    SettingsLink(title: "Competitions", icon: "trophy",
+                                 value: "\(settings.prefs.favouriteCompetitions.count)") {
+                        TeamsManagerView()
+                    }
+                }
                 SettingsToggleRow(title: "Remind me about my teams' matches", icon: "bell",
                                   isOn: Binding(get: { settings.prefs.remindTeamMatches }, set: { on in
                                       settings.prefs.remindTeamMatches = on
