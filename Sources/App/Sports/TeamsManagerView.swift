@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Which sport the team search is narrowed to.
 private enum SportFilter: String, CaseIterable, Identifiable {
-    case all, football, f1, rugby, nfl, nba, nhl, mlb
+    case all, football, f1, rugby, cricket, nfl, nba, nhl, mlb
 
     var id: String { rawValue }
 
@@ -12,6 +12,7 @@ private enum SportFilter: String, CaseIterable, Identifiable {
         case .football: return "Football"
         case .f1: return "Formula 1"
         case .rugby: return "Rugby"
+        case .cricket: return "Cricket"
         case .nfl: return "NFL"
         case .nba: return "NBA"
         case .nhl: return "NHL"
@@ -24,7 +25,8 @@ private enum SportFilter: String, CaseIterable, Identifiable {
         case .all: return true
         case .football: return result.sport == "soccer"
         case .f1: return result.sport == "f1"
-        case .rugby: return result.sport == "rugby"
+        case .rugby: return result.sport == "rugby" || result.sport == SuperLeagueClient.sport
+        case .cricket: return result.sport == "cricket"
         case .nfl: return result.league == "nfl"
         case .nba: return result.league == "nba"
         case .nhl: return result.league == "nhl"
@@ -112,8 +114,13 @@ struct TeamsManagerView: View {
                     NavigationLink { F1TeamsView() } label: {
                         Label("Formula 1", systemImage: "flag.checkered")
                     }
-                    NavigationLink { LeagueListView(title: "Rugby", leagues: SportsCatalog.rugby) } label: {
+                    NavigationLink {
+                        LeagueListView(title: "Rugby", leagues: SportsCatalog.rugby + SportsCatalog.rugbyLeague)
+                    } label: {
                         Label("Rugby", systemImage: "figure.rugby")
+                    }
+                    NavigationLink { CricketLeaguesView() } label: {
+                        Label("Cricket", systemImage: "figure.cricket")
                     }
                     ForEach(SportsCatalog.us) { league in
                         NavigationLink { TeamPickerView(league: league) } label: {
@@ -165,6 +172,8 @@ struct TeamsManagerView: View {
         case "f1": return "Formula 1"
         case "soccer": return leagueNames[result.league] ?? "Football"
         case "rugby": return SportsCatalog.rugby.first { $0.slug == result.league }?.name ?? "Rugby"
+        case SuperLeagueClient.sport: return SuperLeagueClient.league.name
+        case "cricket": return "Cricket"
         default: return result.league.uppercased()
         }
     }
@@ -174,7 +183,8 @@ struct TeamsManagerView: View {
         switch result.sport {
         case "f1": return "Formula 1"
         case "soccer": sport = "Football"
-        case "rugby": sport = "Rugby"
+        case "rugby", SuperLeagueClient.sport: sport = "Rugby"
+        case "cricket": sport = "Cricket"
         case "football": sport = "American football"
         case "basketball": sport = "Basketball"
         case "hockey": sport = "Ice hockey"
@@ -264,6 +274,22 @@ private struct FootballLeaguesView: View {
                 self.error = "Couldn't load leagues: \(error.localizedDescription)"
             }
         }
+    }
+}
+
+/// International sides, then the competitions with cricket in the next 30 days.
+private struct CricketLeaguesView: View {
+    @State private var leagues: [SportLeague] = []
+
+    var body: some View {
+        Group {
+            if leagues.isEmpty {
+                ProgressView()
+            } else {
+                LeagueListView(title: "Cricket", leagues: leagues)
+            }
+        }
+        .task { leagues = await CricketClient().leagues() }
     }
 }
 
