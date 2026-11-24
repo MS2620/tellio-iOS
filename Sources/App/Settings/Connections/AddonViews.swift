@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Settings › Connections › an addon: what it provides, its place in the order, rename, remove.
+/// Settings › Connections › an addon: what it provides, whether it's used and for what, its
+/// place in the order, rename, remove.
 struct AddonDetailView: View {
     let addonID: String
     @EnvironmentObject private var settings: AppSettings
@@ -34,6 +35,27 @@ struct AddonDetailView: View {
                 SettingsNote(description)
             }
 
+            if let addon, let index {
+                SettingsGroup("Use") {
+                    SettingsToggleRow(title: "Use this addon", icon: "power", isOn: enabledBinding(index: index))
+                    if addon.enabled {
+                        ForEach(AddonUse.allCases) { use in
+                            SettingsToggleRow(title: use.label, icon: Self.icon(use), isOn: usedBinding(use, index: index))
+                        }
+                        if addon.chosenUses != nil {
+                            Button {
+                                settings.addons[index].chosenUses = nil
+                            } label: {
+                                SettingsRowLabel(title: "Back to automatic", icon: "wand.and.stars")
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                SettingsNote(addon.enabled ? usesNote(addon)
+                             : String(localized: "Switched off: it isn't searched for anything, and keeps its settings for when you switch it back on."))
+            }
+
             SettingsGroup("Order") {
                 Button { move(by: -1) } label: {
                     SettingsRowLabel(title: "Move up", icon: "arrow.up",
@@ -65,6 +87,7 @@ struct AddonDetailView: View {
             let result = await ConnectionCheck.addon(addon)
             state = result.0
             manifest = result.1
+            if let manifest = result.1 { settings.noteManifest(manifest, for: addon.id) }
         }
         .alert("Rename addon", isPresented: $renaming) {
             TextField("Name", text: $newName)
@@ -91,6 +114,37 @@ struct AddonDetailView: View {
         var list = settings.addons
         list.swapAt(from, to)
         settings.addons = list
+    }
+
+    static func icon(_ use: AddonUse) -> String {
+        switch use {
+        case .movies: return "film"
+        case .series: return "tv"
+        case .live: return "sportscourt"
+        }
+    }
+
+    private func enabledBinding(index: Int) -> Binding<Bool> {
+        Binding(get: { settings.addons.indices.contains(index) && settings.addons[index].enabled }, set: { on in
+            guard settings.addons.indices.contains(index) else { return }
+            settings.addons[index].enabled = on
+        })
+    }
+
+    /// Ticking or unticking a kind turns the automatic choice into the user's own.
+    private func usedBinding(_ use: AddonUse, index: Int) -> Binding<Bool> {
+        Binding(get: { settings.addons.indices.contains(index) && settings.addons[index].uses.contains(use) }, set: { on in
+            guard settings.addons.indices.contains(index) else { return }
+            var uses = settings.addons[index].uses
+            if on { uses.insert(use) } else { uses.remove(use) }
+            settings.addons[index].chosenUses = uses
+        })
+    }
+
+    private func usesNote(_ addon: AddonEntry) -> String {
+        addon.chosenUses == nil
+            ? String(localized: "Automatic: from what the addon says it offers. Untick what you don't want it searched for, e.g. a sports addon for movies.")
+            : String(localized: "Chosen by you. Movies and series are only looked for in the addons ticked for them, and so are matches in Sports.")
     }
 }
 
@@ -140,7 +194,8 @@ struct AddAddonView: View {
         defer { adding = false }
         do {
             let manifest = try await StremioAddonClient(manifestURL: url).manifest()
-            settings.addons.append(AddonEntry(manifestURL: url.absoluteString, name: manifest.name))
+            settings.addons.append(AddonEntry(manifestURL: url.absoluteString, name: manifest.name,
+                                              detectedUses: AddonUse.offered(by: manifest)))
             dismiss()
         } catch {
             status = "Couldn't load it. Check the address."

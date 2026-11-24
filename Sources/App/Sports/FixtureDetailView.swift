@@ -13,9 +13,11 @@ struct FixtureDetailView: View {
     @State private var addonSearching = false
     /// Whether any addon lists something other than films and series; otherwise the section stays hidden.
     @State private var addonsHaveLive = false
+    /// Addons still searching, while some results are already shown.
+    @State private var addonsRemaining = 0
 
     private var unlockedAddons: [AddonEntry] {
-        settings.addons.filter { !ParentalLock.shared.isLocked(addon: $0, prefs: settings.prefs) }
+        settings.addons(for: .live).filter { !ParentalLock.shared.isLocked(addon: $0, prefs: settings.prefs) }
     }
 
     /// The guide search is done (or there's no IPTV account), so its channels can be looked for in addons too.
@@ -218,6 +220,13 @@ struct FixtureDetailView: View {
                         addonRow(hit)
                     }
                 }
+                if !addonHits.isEmpty && addonsRemaining > 0 {
+                    HStack(spacing: 10) {
+                        ProgressView()
+                        Text("Still searching \(addonsRemaining) addons…").font(.caption).foregroundStyle(.secondary)
+                    }
+                    .padding(16)
+                }
             }
         }
     }
@@ -258,11 +267,14 @@ struct FixtureDetailView: View {
         addonSearching = true
         let done = guideSearchDone
         let channelNames = done ? matches.map(\.channel.providerName) : []
-        let hits = await AddonSports.search(fixture, addons: addons, channelNames: channelNames)
-        guard !Task.isCancelled else { return }
-        addonHits = hits
-        // Until the guide search ends, more channels (and so more addon results) may follow.
-        addonSearching = !done
+        let earlier = addonHits
+        await AddonSports.search(fixture, addons: addons, channelNames: channelNames) { hits, remaining in
+            guard !Task.isCancelled else { return }
+            addonHits = remaining == 0 ? hits : AddonSports.merged(hits, with: earlier)
+            addonsRemaining = remaining
+            // Until the guide search ends, more channels (and so more addon results) may follow.
+            if remaining == 0 { addonSearching = !done }
+        }
     }
 
     private func playAddon(_ hit: AddonSportsHit) {

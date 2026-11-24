@@ -36,6 +36,8 @@ struct RootView: View {
         // Reminders slide in over every tab, and become notifications for when Tellio is closed.
         .overlay(alignment: .top) { ReminderBanner() }
         .task { await ReminderStore.shared.run() }
+        // What each addon offers, for addons added before categories (and ones that changed).
+        .task { await settings.detectAddonUses() }
         .onAppear { PlayerSession.shared.settings = settings }
         .onReceive(reminders.$allReminders) { _ in ReminderNotifications.sync() }
         .onReceive(reminders.$matches) { _ in ReminderNotifications.sync() }
