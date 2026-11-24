@@ -204,10 +204,10 @@ struct FixtureDetailView: View {
                             .padding(16)
                     }
                 }
-                ForEach(addonHits.filter { $0.kind != .sportChannel }) { hit in
-                    addonRow(hit)
+                ForEach(AddonSports.grouped(addonHits.filter { $0.kind != .sportChannel })) { group in
+                    addonRow(group)
                 }
-                let maybe = addonHits.filter { $0.kind == .sportChannel }
+                let maybe = AddonSports.grouped(addonHits.filter { $0.kind == .sportChannel })
                 if !maybe.isEmpty {
                     Text("CHANNELS FOR THIS SPORT · MAY BE SHOWING IT")
                         .font(.caption2.weight(.bold))
@@ -216,8 +216,8 @@ struct FixtureDetailView: View {
                         .padding(.horizontal, 16)
                         .padding(.top, 12)
                         .padding(.bottom, 4)
-                    ForEach(maybe) { hit in
-                        addonRow(hit)
+                    ForEach(maybe) { group in
+                        addonRow(group)
                     }
                 }
                 if !addonHits.isEmpty && addonsRemaining > 0 {
@@ -231,8 +231,10 @@ struct FixtureDetailView: View {
         }
     }
 
-    private func addonRow(_ hit: AddonSportsHit) -> some View {
-        Button {
+    /// Several sources (the same thing from different addons): tap plays the first, long-press lists them.
+    private func addonRow(_ group: AddonSportsGroup) -> some View {
+        let hit = group.first
+        return Button {
             playAddon(hit)
         } label: {
             HStack(spacing: 12) {
@@ -244,7 +246,7 @@ struct FixtureDetailView: View {
                     Text(hit.title)
                         .font(.subheadline.weight(.bold))
                         .lineLimit(2)
-                    Text([hit.stream.headline, hit.addonName].joined(separator: " · "))
+                    Text(group.subtitle)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
@@ -257,6 +259,13 @@ struct FixtureDetailView: View {
             .contentShape(.rect)
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            if group.hits.count > 1 {
+                ForEach(group.hits) { source in
+                    Button("\(source.addonName) · \(source.stream.headline)", systemImage: "play.fill") { playAddon(source) }
+                }
+            }
+        }
     }
 
     private func searchAddons() async {
