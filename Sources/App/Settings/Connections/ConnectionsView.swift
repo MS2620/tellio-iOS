@@ -12,7 +12,7 @@ struct ConnectionsView: View {
     @State private var confirmingDelete = false
 
     private var languageName: String {
-        LanguageOptions.tmdb.first { $0.code == settings.prefs.tmdbLanguage }?.name ?? settings.prefs.tmdbLanguage
+        LanguageOptions.catalogue.first { $0.0 == settings.prefs.catalogueLanguage }?.1 ?? settings.prefs.catalogueLanguage
     }
 
     /// Re-checks whenever a login or the addon list changes.

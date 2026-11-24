@@ -27,7 +27,7 @@ struct CatalogRail: View {
                 }
             }
         }
-        .task(id: "\(settings.tmdbToken.count)|\(settings.prefs.tmdbLanguage)|\(settings.prefs.tmdbRegion)") {
+        .task(id: "\(settings.tmdbToken.count)|\(settings.prefs.catalogueLanguageInUse)|\(settings.prefs.tmdbRegion)") {
             guard !settings.tmdbToken.isEmpty else { return }
             do {
                 items = try await section.fetch(settings.tmdb)

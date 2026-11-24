@@ -154,8 +154,8 @@ struct ContentSettingsView: View {
             SettingsNote("Adds the film and series libraries that come with your IPTV login as extra rows in Browse.")
 
             SettingsGroup("Catalogue") {
-                SettingsOptionRow(title: "Language", icon: "globe", selection: $settings.prefs.tmdbLanguage,
-                                  options: LanguageOptions.tmdb.map { ($0.code, $0.name) })
+                SettingsOptionRow(title: "Language", icon: "globe", selection: $settings.prefs.catalogueLanguage,
+                                  options: LanguageOptions.catalogue)
                 SettingsOptionRow(title: "Region", icon: "mappin.and.ellipse", selection: $settings.prefs.tmdbRegion,
                                   options: LanguageOptions.regions.map { ($0.code, $0.name) })
             }
