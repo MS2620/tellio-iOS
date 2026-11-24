@@ -18,6 +18,16 @@
       "screenshots": [],
       "versions": [
         {
+          "version": "0.1.18",
+          "buildVersion": "18",
+          "date": "2026-11-24T18:25:19Z",
+          "localizedDescription": "Merge pull request #7 from MS2620/follow-competitions\n\nShow today in followed competitions\n\n---\nThird-party components in this build:\n- https://github.com/superuser404notfound/AetherEngine @ 7.73.0\n- https://github.com/superuser404notfound/FFmpegBuild @ 3.19.0\n- https://github.com/superuser404notfound/LibDovi @ 2.2.0\n- https://github.com/getsentry/sentry-cocoa @ 9.35.0\n- https://github.com/kishikawakatsumi/SMBClient @ 0.3.1",
+          "downloadURL": "https://github.com/MS2620/tellio-iOS/releases/download/build-18/Tellio.ipa",
+          "size": 17293809,
+          "sha256": "ca74a96663b5bc2cb079236ac5e2b32206cd69cae90b6b5277011945843c1306",
+          "minOSVersion": "26.0"
+        },
+        {
           "version": "0.1.16",
           "buildVersion": "16",
           "date": "2026-11-24T18:08:12Z",
