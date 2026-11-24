@@ -11,6 +11,8 @@ struct IPTVAccountView: View {
     @State private var createdID: String?
     @State private var draft = XtreamAccount()
     @State private var loaded = false
+    /// Xtream Codes login, or an M3U playlist link.
+    @State private var isPlaylist = false
 
     @State private var state: ConnectionState = .off("Not set up")
     @State private var info: XtreamAccountInfo?
@@ -50,19 +52,35 @@ struct IPTVAccountView: View {
             }
 
             SettingsGroup("Login") {
+                SettingsOptionRow(title: "Type", icon: "list.bullet", selection: $isPlaylist,
+                                  options: [(false, "Xtream Codes"), (true, "M3U playlist")])
                 SettingsFieldRow(title: "Name", icon: "textformat", prompt: "Optional", text: $draft.name)
                     .textInputAutocapitalization(.words)
-                SettingsFieldRow(title: "Server", icon: "globe", prompt: "http://server:port", keyboard: .URL,
-                                 text: $draft.server)
-                SettingsFieldRow(title: "Username", icon: "person", text: $draft.username)
-                SettingsFieldRow(title: "Password", icon: "lock", secure: true, text: $draft.password)
+                if isPlaylist {
+                    SettingsFieldRow(title: "Playlist address", icon: "list.bullet.rectangle",
+                                     prompt: "http://…/playlist.m3u", keyboard: .URL, text: $draft.playlistURL)
+                    SettingsFieldRow(title: "Guide address", icon: "calendar", prompt: "From the playlist",
+                                     keyboard: .URL, text: $draft.guideURL)
+                } else {
+                    SettingsFieldRow(title: "Server", icon: "globe", prompt: "http://server:port", keyboard: .URL,
+                                     text: $draft.server)
+                    SettingsFieldRow(title: "Username", icon: "person", text: $draft.username)
+                    SettingsFieldRow(title: "Password", icon: "lock", secure: true, text: $draft.password)
+                }
             }
-            SettingsNote("The name is only for you; without one the server is shown.")
+            if isPlaylist {
+                SettingsNote("Use the playlist link from your provider; it usually ends in .m3u or .m3u8. The guide comes from the link inside the playlist, so only enter one if your provider gives it separately. Live channels are read; films and series in the playlist are left out.")
+            } else {
+                SettingsNote("The name is only for you; without one the server is shown.")
+            }
 
             if let info, info.signedIn {
                 SettingsGroup("Status") {
-                    SettingsInfoRow(title: "Account", icon: "person.badge.shield.checkmark",
-                                    value: info.status.capitalized)
+                    // A playlist has no account to report on, only its channels.
+                    if saved?.isM3U != true {
+                        SettingsInfoRow(title: "Account", icon: "person.badge.shield.checkmark",
+                                        value: info.status.capitalized)
+                    }
                     if let connections = info.connectionsText {
                         SettingsInfoRow(title: "Connections", icon: "person.2", value: connections)
                     }
@@ -100,6 +118,7 @@ struct IPTVAccountView: View {
             guard !loaded else { return }
             loaded = true
             if let saved { draft = saved }
+            isPlaylist = draft.isM3U
         }
         .task(id: saved) { await check() }
         .confirmationDialog("Remove this IPTV account?", isPresented: $confirmingRemove, titleVisibility: .visible) {
@@ -117,6 +136,17 @@ struct IPTVAccountView: View {
         account.name = account.name.trimmingCharacters(in: .whitespacesAndNewlines)
         account.server = account.server.trimmingCharacters(in: .whitespacesAndNewlines)
         account.username = account.username.trimmingCharacters(in: .whitespacesAndNewlines)
+        account.playlistURL = account.playlistURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        account.guideURL = account.guideURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Only the chosen type's details are kept, so the account reads as that type.
+        if isPlaylist {
+            account.server = ""
+            account.username = ""
+            account.password = ""
+        } else {
+            account.playlistURL = ""
+            account.guideURL = ""
+        }
         return account
     }
 
