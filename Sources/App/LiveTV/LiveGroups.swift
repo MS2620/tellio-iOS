@@ -49,11 +49,11 @@ enum LiveGroups {
             list.append(LiveGroup(id: category.id, name: category.name, icon: "folder", locked: locked))
         }
         if !prefs.favouriteChannelIDs.isEmpty {
-            let favourites = LiveGroup(id: LiveGroup.favouritesID, name: "Favourites", icon: "star")
+            let favourites = LiveGroup(id: LiveGroup.favouritesID, name: String(localized: "Favourites"), icon: "star")
             if prefs.favouritesFirst { list.insert(favourites, at: 0) } else { list.append(favourites) }
         }
         if !prefs.recentChannelIDs.isEmpty {
-            list.insert(LiveGroup(id: LiveGroup.recentID, name: "Recent", icon: "clock.arrow.circlepath"), at: 0)
+            list.insert(LiveGroup(id: LiveGroup.recentID, name: String(localized: "Recent"), icon: "clock.arrow.circlepath"), at: 0)
         }
         return list
     }

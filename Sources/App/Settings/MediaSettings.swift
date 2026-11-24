@@ -104,13 +104,13 @@ struct ContentSettingsView: View {
     private var hiddenSummary: String {
         let groups = settings.prefs.hiddenCategoryIDs.count
         let channels = settings.prefs.hiddenChannelIDs.count
-        if groups == 0 && channels == 0 { return "None hidden" }
-        return "\(groups) groups, \(channels) channels hidden"
+        if groups == 0 && channels == 0 { return String(localized: "Nothing hidden") }
+        return String(localized: "\(groups) groups, \(channels) channels hidden")
     }
 
     private var qualitySummary: String {
         let count = settings.prefs.qualitySortCategoryIDs.count
-        return count == 0 ? "Off" : (count == 1 ? "1 group" : "\(count) groups")
+        return count == 0 ? String(localized: "Off") : String(localized: "\(count) groups")
     }
 
     var body: some View {

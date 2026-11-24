@@ -165,7 +165,7 @@ struct GuideGrid<Menu: View>: View {
         } label: {
             HStack(spacing: 4) {
                 if reminded {
-                    Image(systemName: "bell.fill").font(.caption2).accessibilityLabel("Reminder set")
+                    Image(systemName: "bell.fill").font(.caption2).accessibilityLabel(Text("Reminder set"))
                 }
                 Text(segment.title)
                     .font(.footnote.weight(.bold))
@@ -188,7 +188,7 @@ struct GuideGrid<Menu: View>: View {
         guard let entry = segment.entry, let start = entry.start, let end = entry.end else {
             return "\(channel.name), \(segment.title)"
         }
-        return "\(channel.name), \(segment.title), \(DayFormat.time(start)) to \(DayFormat.time(end))"
+        return String(localized: "\(channel.name), \(segment.title), \(DayFormat.time(start)) to \(DayFormat.time(end))")
     }
 
     /// Lays a channel's listings along the timeline, filling holes with gaps (as on the Apple TV).

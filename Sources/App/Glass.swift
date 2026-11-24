@@ -21,7 +21,7 @@ struct SectionHeader: View {
     init(_ title: String) { self.title = title }
 
     var body: some View {
-        Text(title.uppercased())
+        Text(title.localizedUI.uppercased())
             .font(.footnote.weight(.semibold))
             .tracking(0.5)
             .foregroundStyle(.secondary)
@@ -50,6 +50,6 @@ struct GlassIconButton: View {
         }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
-        .accessibilityLabel(label)
+        .accessibilityLabel(label.localizedUI)
     }
 }

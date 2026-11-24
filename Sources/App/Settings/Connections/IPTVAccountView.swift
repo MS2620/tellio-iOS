@@ -90,7 +90,7 @@ struct IPTVAccountView: View {
                     }
                     if let channelCount, let groupCount {
                         SettingsInfoRow(title: "Live TV", icon: "tv",
-                                        value: "\(channelCount) channels · \(groupCount) groups")
+                                        value: String(localized: "\(channelCount) channels · \(groupCount) groups"))
                     }
                     SettingsInfoRow(title: "TV guide", icon: "list.bullet.rectangle", value: refreshText)
                 }
@@ -180,7 +180,7 @@ struct IPTVAccountView: View {
         case 0: return "Every launch"
         case 1: return "Every hour"
         case 24: return "Once a day"
-        case let hours: return "Every \(hours) hours"
+        case let hours: return String(localized: "Every \(hours) hours")
         }
     }
 

@@ -23,7 +23,7 @@ struct SettingsPage<Content: View>: View {
             .frame(maxWidth: .infinity)
         }
         .appBackground()
-        .navigationTitle(title)
+        .navigationTitle(title.localizedUI)
     }
 }
 
@@ -70,14 +70,14 @@ struct SettingsRowLabel: View {
                 .frame(width: 30, height: 30)
                 .background(.white.opacity(0.16), in: .rect(cornerRadius: 8))
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.body.weight(.semibold))
+                Text(title.localizedUI).font(.body.weight(.semibold))
                 if let subtitle {
-                    Text(subtitle).font(.footnote).foregroundStyle(.secondary)
+                    Text(subtitle.localizedUI).font(.footnote).foregroundStyle(.secondary)
                 }
             }
             Spacer(minLength: 8)
             if let value {
-                Text(value).foregroundStyle(.secondary).lineLimit(1)
+                Text(value.localizedUI).foregroundStyle(.secondary).lineLimit(1)
             }
             if showsChevron {
                 Image(systemName: "chevron.right")
@@ -131,7 +131,7 @@ struct SettingsToggleRow: View {
     var body: some View {
         HStack(spacing: 0) {
             SettingsRowLabel(title: title, subtitle: subtitle, icon: icon)
-            Toggle(title, isOn: $isOn)
+            Toggle(title.localizedUI, isOn: $isOn)
                 .labelsHidden()
                 .padding(.trailing, 14)
         }
@@ -155,9 +155,9 @@ struct SettingsFieldRow: View {
                 .background(.white.opacity(0.16), in: .rect(cornerRadius: 8))
             Group {
                 if secure {
-                    SecureField(title, text: $text, prompt: Text(prompt.isEmpty ? title : prompt))
+                    SecureField(title.localizedUI, text: $text, prompt: Text((prompt.isEmpty ? title : prompt).localizedUI))
                 } else {
-                    TextField(title, text: $text, prompt: Text(prompt.isEmpty ? title : prompt))
+                    TextField(title.localizedUI, text: $text, prompt: Text((prompt.isEmpty ? title : prompt).localizedUI))
                         .keyboardType(keyboard)
                 }
             }
@@ -177,7 +177,7 @@ struct SettingsNote: View {
     init(_ text: String) { self.text = text }
 
     var body: some View {
-        Text(text)
+        Text(text.localizedUI)
             .font(.footnote)
             .foregroundStyle(.secondary)
             .padding(.horizontal, 16)
@@ -196,9 +196,9 @@ struct SettingsOptionRow<Value: Hashable>: View {
     var body: some View {
         HStack(spacing: 0) {
             SettingsRowLabel(title: title, subtitle: subtitle, icon: icon)
-            Picker(title, selection: $selection) {
+            Picker(title.localizedUI, selection: $selection) {
                 ForEach(options, id: \.0) { option in
-                    Text(option.1).tag(option.0)
+                    Text(option.1.localizedUI).tag(option.0)
                 }
             }
             .labelsHidden()

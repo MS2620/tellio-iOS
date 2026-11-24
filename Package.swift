@@ -37,8 +37,8 @@ let package = Package(
                 // resources, so these would otherwise be picked up (e.g. the tvOS icon catalog).
                 // Resources/Licenses is kept: Settings › About › Acknowledgements shows them.
                 "\(shared)/Resources/Assets.xcassets",
-                // The Apple TV app's translations. SwiftPM would otherwise want them built
-                // into this package's resource bundle.
+                // Translations go into the app itself (see Scripts/localize.py), where
+                // String(localized:) looks for them, not into this package's resource bundle.
                 "\(shared)/Resources/Localizable.xcstrings",
                 "\(shared)/Resources/en.lproj",
                 "\(shared)/Resources/es.lproj",

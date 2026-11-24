@@ -52,7 +52,7 @@ struct SearchView: View {
     private var results: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 4) {
-                SectionHeader(channels.count == 1 ? "1 channel" : "\(channels.count) channels")
+                SectionHeader(String(localized: "\(channels.count) channels"))
                     .padding(.horizontal, 4)
                 ForEach(channels) { channel in
                     Button {

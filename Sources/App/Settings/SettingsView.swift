@@ -5,6 +5,7 @@ struct SettingsView: View {
     @EnvironmentObject private var settings: AppSettings
     @ObservedObject private var backup = BackupService.shared
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         NavigationStack {
@@ -40,6 +41,10 @@ struct SettingsView: View {
                 }
 
                 SettingsGroup("Personalise") {
+                    // iOS has its own per-app language choice, on Tellio's page in the Settings app.
+                    SettingsActionRow(title: "Language", icon: "globe", value: Self.languageName) {
+                        if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+                    }
                     SettingsLink(title: "Home screen", icon: "house") { HomeScreenSettingsView() }
                     SettingsLink(title: "Appearance", icon: "paintbrush",
                                  value: settings.prefs.backgroundStyle.label) {
@@ -52,6 +57,8 @@ struct SettingsView: View {
                         ParentalControlsView()
                     }
                 }
+
+                SettingsNote("Tellio follows your iPhone's language. To choose another, tap Language, then Language on Tellio's page in the Settings app.")
 
                 SettingsGroup("Backup") {
                     SettingsLink(title: "Backup & restore", icon: "externaldrive",
@@ -98,6 +105,14 @@ struct SettingsView: View {
     private var connectionCount: String? {
         let count = settings.xtreamAccounts.count + settings.addons.count
         return count == 0 ? nil : "\(count)"
+    }
+
+    /// The language Tellio is shown in, named in itself ("Deutsch").
+    static var languageName: String {
+        let code = Bundle.main.preferredLocalizations.first ?? "en"
+        let locale = Locale(identifier: code)
+        let name = locale.localizedString(forIdentifier: code) ?? code
+        return name.prefix(1).uppercased(with: locale) + name.dropFirst()
     }
 
     static var version: String {

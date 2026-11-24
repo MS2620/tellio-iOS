@@ -50,7 +50,7 @@ struct FixtureDetailView: View {
                         .lineLimit(3)
                     if let score {
                         HStack(spacing: 8) {
-                            Text(score.phase == .live ? "● LIVE \(score.clock)" : score.clock)
+                            Text(score.phase == .live ? String(localized: "● LIVE \(score.clock)") : score.clock)
                                 .font(.caption.weight(.heavy))
                                 .padding(.horizontal, 10)
                                 .padding(.vertical, 4)
@@ -93,11 +93,11 @@ struct FixtureDetailView: View {
                 addonPanel
 
                 if !matches.isEmpty && !searching {
-                    SettingsNote([result.details, "Hidden groups and channels are skipped."]
+                    SettingsNote([result.details, String(localized: "Hidden groups and channels are skipped.")]
                         .compactMap { $0 }.joined(separator: " "))
                 }
                 if !fixture.broadcasts.isEmpty {
-                    Text("Listed broadcasters: " + fixture.broadcasts.joined(separator: ", "))
+                    Text("Listed broadcasters: \(fixture.broadcasts.joined(separator: ", "))")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -127,12 +127,12 @@ struct FixtureDetailView: View {
 
     /// "Saturday 14 November at 19:45".
     private var dateLine: String {
-        fixture.guideTime.formatted(.dateTime.weekday(.wide).day().month(.wide)) + " at " + DayFormat.time(fixture.guideTime)
+        String(localized: "\(fixture.guideTime.formatted(.dateTime.weekday(.wide).day().month(.wide))) at \(DayFormat.time(fixture.guideTime))")
     }
 
     private var progressText: String {
-        guard let entry, entry.total > 0 else { return "Searching your TV guide…" }
-        return "Checking channels… \(entry.checked) of \(entry.total)"
+        guard let entry, entry.total > 0 else { return String(localized: "Searching your TV guide…") }
+        return String(localized: "Checking channels… \(entry.checked) of \(entry.total)")
     }
 
     private var watchPanel: some View {
@@ -306,11 +306,11 @@ struct FixtureDetailView: View {
     private var notFoundDetail: String {
         if notListedYet {
             let reach = result.guideEnds.map {
-                "Your provider's guide reaches " + $0.formatted(.dateTime.weekday(.wide).day().month(.wide)) + ". "
+                String(localized: "Your provider's guide reaches \($0.formatted(.dateTime.weekday(.wide).day().month(.wide))).") + " "
             } ?? ""
-            return reach + "Channels showing this will appear here once it's listed, usually a day or two before."
+            return reach + String(localized: "Channels showing this will appear here once it's listed, usually a day or two before.")
         }
-        return "None of your channels list it at that time. Listings can be added late, so try again closer to the start."
+        return String(localized: "None of your channels list it at that time. Listings can be added late, so try again closer to the start.")
     }
 
     /// The listing, its times and the account it's on.

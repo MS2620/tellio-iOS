@@ -199,7 +199,7 @@ struct PlayerScreen: View {
                     bigButton("chevron.up", size: 26, label: "Previous channel") { zap(by: -1) }
                 }
             } else {
-                bigButton("gobackward.\(prefs.seekBackSeconds)", size: 30, label: "Back \(prefs.seekBackSeconds) seconds") {
+                bigButton("gobackward.\(prefs.seekBackSeconds)", size: 30, label: String(localized: "Back \(prefs.seekBackSeconds) seconds")) {
                     skip(-Double(prefs.seekBackSeconds))
                 }
                 .disabled(!engine.canSeek)
@@ -216,7 +216,7 @@ struct PlayerScreen: View {
                     bigButton("chevron.down", size: 26, label: "Next channel") { zap(by: 1) }
                 }
             } else {
-                bigButton("goforward.\(prefs.seekForwardSeconds)", size: 30, label: "Forward \(prefs.seekForwardSeconds) seconds") {
+                bigButton("goforward.\(prefs.seekForwardSeconds)", size: 30, label: String(localized: "Forward \(prefs.seekForwardSeconds) seconds")) {
                     skip(Double(prefs.seekForwardSeconds))
                 }
                 .disabled(!engine.canSeek)
@@ -340,7 +340,7 @@ struct PlayerScreen: View {
                 .background(.black.opacity(0.35), in: .circle)
                 .contentShape(.circle)
         }
-        .accessibilityLabel(label)
+        .accessibilityLabel(label.localizedUI)
     }
 
     private func bigButton(_ icon: String, size: CGFloat, label: String, action: @escaping () -> Void) -> some View {
@@ -350,7 +350,7 @@ struct PlayerScreen: View {
                 .frame(width: size + 34, height: size + 34)
                 .contentShape(.circle)
         }
-        .accessibilityLabel(label)
+        .accessibilityLabel(label.localizedUI)
     }
 
     private func errorCard(_ message: String) -> some View {
@@ -562,15 +562,15 @@ struct PlayerScreen: View {
         let name = track.name.trimmingCharacters(in: .whitespaces)
         if !name.isEmpty {
             parts.append(name)
-        } else if let code = track.language, let language = Locale.current.localizedString(forLanguageCode: code) {
+        } else if let code = track.language, case let language = LanguageOptions.languageName(code), language != code {
             parts.append(language)
         } else {
-            parts.append("Track \(track.id + 1)")
+            parts.append(String(localized: "Track \(track.id + 1)"))
         }
         switch track.channels {
         case 6: parts.append("5.1")
         case 8: parts.append("7.1")
-        case 2: parts.append("Stereo")
+        case 2: parts.append(String(localized: "Stereo"))
         default: break
         }
         return parts.joined(separator: " · ")

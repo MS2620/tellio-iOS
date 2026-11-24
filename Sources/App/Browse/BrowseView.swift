@@ -49,7 +49,7 @@ struct BrowseView: View {
     }
 
     private func note(_ text: String) -> some View {
-        Text(text)
+        Text(text.localizedUI)
             .font(.subheadline)
             .foregroundStyle(.secondary)
             .padding(.horizontal, 20)
@@ -183,7 +183,7 @@ struct ProviderSeriesView: View {
                             } label: {
                                 HStack(alignment: .top, spacing: 12) {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text("\(episode.number). \(episode.title)")
+                                        Text(verbatim: "\(episode.number). \(episode.title)")
                                             .font(.subheadline.weight(.bold))
                                             .lineLimit(2)
                                         if let plot = episode.plot, !plot.isEmpty {

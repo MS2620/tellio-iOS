@@ -31,10 +31,10 @@ enum ConnectionCheck {
         do {
             let info = try await XtreamClient(account: account, userAgent: userAgent).accountInfo()
             guard info.signedIn else { return (.problem("Login failed"), info) }
-            var parts = [info.isActive ? "Online" : info.status]
+            var parts = [info.isActive ? String(localized: "Online") : info.status]
             if let connections = info.connectionsText { parts.append(connections) }
             if let expires = info.expires {
-                parts.append("expires " + expires.formatted(date: .abbreviated, time: .omitted))
+                parts.append(String(localized: "expires \(expires.formatted(date: .abbreviated, time: .omitted))"))
             }
             let text = parts.joined(separator: " · ")
             return (info.isActive ? .good(text) : .problem(text), info)
@@ -59,7 +59,7 @@ enum ConnectionCheck {
         do {
             let manifest = try await StremioAddonClient(manifestURL: url).manifest()
             let kinds = (manifest.types ?? []).map(typeName).joined(separator: ", ")
-            return (.good(kinds.isEmpty ? "Online" : "Online · " + kinds), manifest)
+            return (.good(kinds.isEmpty ? String(localized: "Online") : String(localized: "Online · \(kinds)")), manifest)
         } catch {
             return (.problem("Can't reach the addon"), nil)
         }
@@ -67,10 +67,10 @@ enum ConnectionCheck {
 
     static func typeName(_ type: String) -> String {
         switch type {
-        case "movie": return "Movies"
-        case "series": return "Series"
+        case "movie": return String(localized: "Movies")
+        case "series": return String(localized: "Series")
         case "tv": return "TV"
-        case "channel": return "Channels"
+        case "channel": return String(localized: "Channels")
         default: return type.capitalized
         }
     }
@@ -93,9 +93,9 @@ struct ConnectionRowLabel: View {
                 .background(.white.opacity(0.16), in: .rect(cornerRadius: 8))
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 8) {
-                    Text(title).font(.body.weight(.semibold)).lineLimit(1)
+                    Text(title.localizedUI).font(.body.weight(.semibold)).lineLimit(1)
                     if let badge {
-                        Text(badge)
+                        Text(badge.localizedUI)
                             .font(.caption2.weight(.heavy))
                             .tracking(0.5)
                             .padding(.horizontal, 7)
@@ -107,14 +107,14 @@ struct ConnectionRowLabel: View {
                 if let state {
                     HStack(spacing: 6) {
                         Circle().fill(state.dot).frame(width: 8, height: 8)
-                        Text(state.text).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
+                        Text(state.text.localizedUI).font(.footnote).foregroundStyle(.secondary).lineLimit(1)
                     }
                     .accessibilityElement(children: .combine)
                 }
             }
             Spacer(minLength: 8)
             if let trailing {
-                Text(trailing).foregroundStyle(.secondary).lineLimit(1)
+                Text(trailing.localizedUI).foregroundStyle(.secondary).lineLimit(1)
             }
             if showsChevron {
                 Image(systemName: "chevron.right")
@@ -142,7 +142,7 @@ struct ConnectionHeader: View {
                 .glassEffect(.regular, in: .rect(cornerRadius: 14))
             HStack(spacing: 8) {
                 Circle().fill(state.dot).frame(width: 10, height: 10)
-                Text(state.text).foregroundStyle(.secondary).lineLimit(2)
+                Text(state.text.localizedUI).foregroundStyle(.secondary).lineLimit(2)
             }
             Spacer()
         }
@@ -161,7 +161,7 @@ struct SettingsPickerRow: View {
     var body: some View {
         HStack(spacing: 0) {
             SettingsRowLabel(title: title, icon: icon)
-            Picker(title, selection: $selection) {
+            Picker(title.localizedUI, selection: $selection) {
                 ForEach(options) { option in
                     Text(option.name).tag(option.code)
                 }

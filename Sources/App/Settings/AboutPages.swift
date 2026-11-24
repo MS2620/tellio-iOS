@@ -183,7 +183,7 @@ struct AcknowledgementsView: View {
             SettingsGroup("Data") {
                 // TMDB asks for this credit.
                 SettingsRowLabel(title: "TMDB",
-                                 subtitle: "Film and TV information and artwork. This product uses the TMDB API but is not endorsed or certified by TMDB.",
+                                 subtitle: "Film & TV information and artwork. This product uses the TMDB API but is not endorsed or certified by TMDB.",
                                  icon: "film")
             }
 
@@ -202,7 +202,8 @@ struct AcknowledgementsView: View {
     private var sourceNote: String {
         let engine = Acknowledgement.versions["aetherengine"].map { " (\($0))" } ?? ""
         let ffmpeg = Acknowledgement.versions["ffmpegbuild"].map { " (\($0))" } ?? ""
-        return "Tap one to read its licence. Source code: github.com/superuser404notfound/AetherEngine\(engine) and /FFmpegBuild\(ffmpeg)."
+        return String(localized: "Tap one to read its licence.") + " "
+            + String(localized: "Source code: github.com/superuser404notfound/AetherEngine\(engine) and /FFmpegBuild\(ffmpeg).")
     }
 }
 
@@ -213,7 +214,7 @@ private struct LicenceTextView: View {
     var body: some View {
         SettingsPage(item.name) {
             VStack(alignment: .leading, spacing: 4) {
-                Text([item.licence, item.version.map { "version \($0)" }].compactMap { $0 }.joined(separator: " · "))
+                Text(verbatim: [item.licence, item.version.map { String(localized: "version \($0)") }].compactMap { $0 }.joined(separator: " · "))
                 if let source = item.source {
                     Text("Source: \(source)")
                 }

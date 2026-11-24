@@ -35,8 +35,8 @@ enum ReminderNotifications {
                 let fire = reminder.start.addingTimeInterval(-lead).timeIntervalSinceNow
                 guard fire > 1 else { continue }
                 let content = UNMutableNotificationContent()
-                content.title = "Starting now"
-                content.body = "\(reminder.title) on \(reminder.channelName)"
+                content.title = String(localized: "Starting now")
+                content.body = String(localized: "\(reminder.title) on \(reminder.channelName)")
                 content.sound = .default
                 let trigger = UNTimeIntervalNotificationTrigger(timeInterval: fire, repeats: false)
                 try? await center.add(UNNotificationRequest(identifier: prefix + reminder.id, content: content,
