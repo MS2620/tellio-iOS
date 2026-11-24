@@ -75,7 +75,7 @@ struct ConnectionsView: View {
                     } label: {
                         ConnectionRowLabel(title: addon.name, icon: "puzzlepiece.extension",
                                            state: addonStates[addon.id] ?? .checking("Checking…"),
-                                           trailing: versions[addon.id].map { "v" + $0 })
+                                           trailing: addon.enabled ? versions[addon.id].map { "v" + $0 } : String(localized: "Off"))
                     }
                     .buttonStyle(.plain)
                 }
