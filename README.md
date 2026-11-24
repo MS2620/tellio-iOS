@@ -86,7 +86,7 @@ To pick up fixes from the Apple TV app, update the submodule: `git submodule upd
 
 ### Continuous builds
 
-Every push to `master` is built by GitHub Actions ([`build.yml`](.github/workflows/build.yml)) and published as a pre-release with `Tellio.ipa` attached. Pull requests are built but not published.
+Every push to `main` is built by GitHub Actions ([`build.yml`](.github/workflows/build.yml)) and published as a pre-release with `Tellio.ipa` attached. Pull requests are built but not published.
 
 The built-in keys come from repository secrets and are never in the code. A missing secret just leaves that feature for users to set up themselves:
 
