@@ -1,0 +1,38 @@
+{
+  "name": "Tellio for iPhone and iPad",
+  "identifier": "io.github.ms2620.tellio-ios",
+  "subtitle": "A free player for your own addons and IPTV account.",
+  "website": "https://github.com/MS2620/tellio-iOS",
+  "iconURL": "https://raw.githubusercontent.com/MS2620/tellio-iOS/main/Resources/AppIcon.png",
+  "tintColor": "6E5BFF",
+  "apps": [
+    {
+      "name": "Tellio",
+      "bundleIdentifier": "com.mauro.tellio.ios",
+      "developerName": "MS2620",
+      "subtitle": "A free player for your own addons and IPTV account.",
+      "localizedDescription": "Tellio plays what you bring: your IPTV provider's login or M3U playlist for live TV, and your addons for films and series. On top of that it adds artwork, a proper TV guide, sports with live scores, multiview, reminders, Trakt sync and more.\n\nTellio doesn't include any channels, films or streams. It only plays what your own IPTV account and addons provide.",
+      "iconURL": "https://raw.githubusercontent.com/MS2620/tellio-iOS/main/Resources/AppIcon.png",
+      "tintColor": "6E5BFF",
+      "category": "entertainment",
+      "screenshots": [],
+      "versions": [
+        {
+          "version": "0.1.7",
+          "buildVersion": "7",
+          "date": "2026-11-24T14:39:01Z",
+          "localizedDescription": "Merge pull request #3 from MS2620/build-from-main\n\nBuild and publish from main\n\n---\nThird-party components in this build:\n- https://github.com/superuser404notfound/AetherEngine @ 7.73.0\n- https://github.com/superuser404notfound/FFmpegBuild @ 3.19.0\n- https://github.com/superuser404notfound/LibDovi @ 2.2.0\n- https://github.com/getsentry/sentry-cocoa @ 9.35.0\n- https://github.com/kishikawakatsumi/SMBClient @ 0.3.1",
+          "downloadURL": "https://github.com/MS2620/tellio-iOS/releases/download/build-7/Tellio.ipa",
+          "size": 17123653,
+          "sha256": "14323cb756d0a3f23cd499c75dd69614ec578fd9ae82564bc37b9016c6a9e9c0",
+          "minOSVersion": "26.0"
+        }
+      ],
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {}
+      }
+    }
+  ],
+  "news": []
+}
