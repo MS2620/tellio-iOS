@@ -18,6 +18,16 @@
       "screenshots": [],
       "versions": [
         {
+          "version": "0.1.10",
+          "buildVersion": "10",
+          "date": "2026-11-24T16:23:31Z",
+          "localizedDescription": "Merge pull request #4 from MS2620/match-reminders\n\nRemind about matches and let reminders go off earlier\n\n---\nThird-party components in this build:\n- https://github.com/superuser404notfound/AetherEngine @ 7.73.0\n- https://github.com/superuser404notfound/FFmpegBuild @ 3.19.0\n- https://github.com/superuser404notfound/LibDovi @ 2.2.0\n- https://github.com/getsentry/sentry-cocoa @ 9.35.0\n- https://github.com/kishikawakatsumi/SMBClient @ 0.3.1",
+          "downloadURL": "https://github.com/MS2620/tellio-iOS/releases/download/build-10/Tellio.ipa",
+          "size": 17207447,
+          "sha256": "13d817f9e9d08b458f24f68012b5b575df6583ae9e22e3a0378db67039c16a5b",
+          "minOSVersion": "26.0"
+        },
+        {
           "version": "0.1.7",
           "buildVersion": "7",
           "date": "2026-11-24T14:39:01Z",
