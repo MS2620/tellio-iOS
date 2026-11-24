@@ -109,6 +109,13 @@ struct FixtureDetailView: View {
         }
         .appBackground()
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if fixture.date > Date() {
+                ToolbarItem(placement: .topBarTrailing) {
+                    MatchReminderButton(fixture: fixture, iconOnly: true)
+                }
+            }
+        }
         .task { search(force: false) }
         .task { await liveScores.run() }
         .task(id: guideSearchDone) { await searchAddons() }

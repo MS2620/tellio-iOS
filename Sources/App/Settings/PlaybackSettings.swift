@@ -116,8 +116,13 @@ struct SportsSettingsView: View {
                 SettingsLink(title: "My Teams", icon: "star", value: "\(settings.prefs.favouriteTeams.count)") {
                     TeamsManagerView()
                 }
+                SettingsToggleRow(title: "Remind me about my teams' matches", icon: "bell",
+                                  isOn: Binding(get: { settings.prefs.remindTeamMatches }, set: { on in
+                                      settings.prefs.remindTeamMatches = on
+                                      if on { Task { await ReminderNotifications.requestPermission() } }
+                                  }))
             }
-            SettingsNote("Fixtures cover every competition a team plays in, not just the league you picked it from.")
+            SettingsNote("Fixtures cover every competition a team plays in, not just the league you picked it from. Match reminders go off as set in Live TV & Guide › Remind me, and open the match so you can pick a channel.")
         }
     }
 }

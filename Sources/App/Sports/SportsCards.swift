@@ -274,6 +274,7 @@ struct UpcomingFixturesRail: View {
                     ForEach(fixtures) { fixture in
                         NavigationLink(value: fixture) { FixtureTile(fixture: fixture, width: 240) }
                             .buttonStyle(.plain)
+                            .matchReminderMenu(fixture)
                     }
                 }
             }
