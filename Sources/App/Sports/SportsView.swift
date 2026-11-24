@@ -6,6 +6,7 @@ import SwiftUI
 struct SportsView: View {
     @EnvironmentObject private var settings: AppSettings
     @ObservedObject private var liveScores = LiveScores.shared
+    @ObservedObject private var router = AppRouter.shared
     @State private var fixtures: [Fixture] = []
     @State private var loading = false
 
@@ -24,7 +25,7 @@ struct SportsView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $router.sportsPath) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     Text("Next \(days) days · all competitions")
@@ -64,6 +65,7 @@ struct SportsView: View {
                             ForEach(today) { fixture in
                                 NavigationLink(value: fixture) { FixtureTile(fixture: fixture, width: 300) }
                                     .buttonStyle(.plain)
+                                    .matchReminderMenu(fixture)
                             }
                         }
                     }
@@ -75,6 +77,7 @@ struct SportsView: View {
                                 ForEach(later) { fixture in
                                     NavigationLink(value: fixture) { UpcomingFixtureRow(fixture: fixture) }
                                         .buttonStyle(.plain)
+                                        .matchReminderMenu(fixture)
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -131,8 +134,46 @@ struct SportsView: View {
 }
 
 extension View {
+    /// Long-press › Remind me (or Cancel reminder), for a match that hasn't started.
+    func matchReminderMenu(_ fixture: Fixture) -> some View {
+        contextMenu {
+            if fixture.date > Date() { MatchReminderButton(fixture: fixture) }
+        }
+    }
+
     /// The fixture page; added at the root of each tab's navigation stack that shows fixtures.
     func sportsDestinations() -> some View {
         navigationDestination(for: Fixture.self) { FixtureDetailView(fixture: $0) }
     }
+}
+
+/// Remind me / Cancel reminder for a match, asking for notifications the first time.
+struct MatchReminderButton: View {
+    let fixture: Fixture
+    var iconOnly = false
+    @ObservedObject private var reminders = ReminderStore.shared
+
+    private var isSet: Bool { reminders.isSet(fixture: fixture) }
+
+    var body: some View {
+        Button {
+            if !isSet { Task { await ReminderNotifications.requestPermission() } }
+            reminders.toggle(fixture: fixture)
+        } label: {
+            Label(isSet ? String(localized: "Cancel reminder") : String(localized: "Remind me"),
+                  systemImage: isSet ? "bell.slash" : "bell")
+                .labelStyle(iconOnly ? AnyLabelStyle(.iconOnly) : AnyLabelStyle(.titleAndIcon))
+        }
+    }
+}
+
+/// Lets the label style be chosen at run time.
+private struct AnyLabelStyle: LabelStyle {
+    private let make: (Configuration) -> AnyView
+
+    init<Style: LabelStyle>(_ style: Style) {
+        make = { AnyView(style.makeBody(configuration: $0)) }
+    }
+
+    func makeBody(configuration: Configuration) -> some View { make(configuration) }
 }

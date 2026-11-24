@@ -28,7 +28,9 @@ struct LiveTVSettingsView: View {
     var body: some View {
         SettingsPage("Live TV & Guide") {
             SettingsGroup("Reminders") {
-                if upcoming.isEmpty {
+                SettingsOptionRow(title: "Remind me", icon: "clock", selection: $settings.prefs.reminderLeadMinutes,
+                                  options: ReminderLead.options)
+                if upcoming.isEmpty && reminders.matches.isEmpty {
                     SettingsRowLabel(title: "No reminders", icon: "bell.slash")
                 }
                 ForEach(upcoming) { reminder in
@@ -50,8 +52,27 @@ struct LiveTVSettingsView: View {
                         .padding(.trailing, 6)
                     }
                 }
+                ForEach(reminders.matches) { reminder in
+                    HStack(spacing: 0) {
+                        SettingsRowLabel(
+                            title: reminder.title,
+                            subtitle: "\(reminder.fixture.competition) · \(reminder.whenLabel)",
+                            icon: reminder.fixture.isRace ? "flag.checkered" : "sportscourt")
+                        Button {
+                            reminders.remove(fixture: reminder.fixture)
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title3)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 44, height: 44)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Remove reminder")
+                        .padding(.trailing, 6)
+                    }
+                }
             }
-            SettingsNote("Tap a programme that hasn't started in the guide, then Remind me. You're notified 30 seconds before it begins, even when Tellio is closed.")
+            SettingsNote("Tap a programme that hasn't started in the guide, or long-press a match in Sports, then Remind me. You're notified even when Tellio is closed: a programme opens Live TV to switch over, a match opens its page to pick a channel.")
 
             SettingsGroup("Layout") {
                 SettingsOptionRow(title: "Default view on iPhone", icon: "square.grid.2x2",

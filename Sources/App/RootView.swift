@@ -9,11 +9,12 @@ enum AppTab: Hashable {
 /// Settings is behind the gear on Home, not a tab.
 struct RootView: View {
     @EnvironmentObject private var settings: AppSettings
-    @State private var tab: AppTab = .home
+    @ObservedObject private var router = AppRouter.shared
+    @ObservedObject private var reminders = ReminderStore.shared
     @State private var showingSettings = false
 
     var body: some View {
-        TabView(selection: $tab) {
+        TabView(selection: $router.tab) {
             Tab(String(localized: "tab.home", defaultValue: "Home", comment: "Tab bar: keep it short, or the tabs crowd the bar"), systemImage: "house", value: .home) {
                 HomeView(showSettings: { showingSettings = true })
             }
@@ -36,7 +37,12 @@ struct RootView: View {
         .overlay(alignment: .top) { ReminderBanner() }
         .task { await ReminderStore.shared.run() }
         .onAppear { PlayerSession.shared.settings = settings }
-        .onReceive(ReminderStore.shared.$allReminders) { _ in ReminderNotifications.sync() }
+        .onReceive(reminders.$allReminders) { _ in ReminderNotifications.sync() }
+        .onReceive(reminders.$matches) { _ in ReminderNotifications.sync() }
+        .onChange(of: settings.prefs.reminderLeadMinutes) { ReminderNotifications.sync() }
+        .onChange(of: settings.xtream.id) { ReminderNotifications.sync() }
+        // A reminder taking you to Live TV or a match closes Settings if it's open.
+        .onChange(of: router.routed) { showingSettings = false }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
         }

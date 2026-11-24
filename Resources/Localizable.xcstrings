@@ -3148,6 +3148,40 @@
         }
       }
     },
+    "Fixtures cover every competition a team plays in, not just the league you picked it from. Match reminders go off as set in Live TV & Guide › Remind me, and open the match so you can pick a channel.": {
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los partidos incluyen todas las competiciones de un equipo, no solo la liga desde la que lo elegiste. Los recordatorios de partidos avisan según TV en directo y guía › Recordármelo, y abren el partido para que elijas canal."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spiele umfassen alle Wettbewerbe eines Teams, nicht nur die Liga, aus der du es gewählt hast. Spielerinnerungen kommen wie unter Live-TV & TV-Guide › Erinnern eingestellt und öffnen das Spiel, damit du einen Sender wählen kannst."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les matchs couvrent toutes les compétitions d’une équipe, pas seulement la ligue depuis laquelle vous l’avez choisie. Les rappels de match suivent le réglage TV en direct et guide › Me rappeler, et ouvrent le match pour choisir une chaîne."
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Os jogos incluem todas as competições de uma equipa, não só a liga de onde a escolheu. Os lembretes de jogos seguem a definição em TV em direto e guia › Lembrar-me e abrem o jogo para escolher um canal."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mecze obejmują wszystkie rozgrywki drużyny, nie tylko ligę, z której ją wybrano. Przypomnienia o meczach działają zgodnie z ustawieniem TV na żywo i program › Przypomnij mi i otwierają mecz, by wybrać kanał."
+          }
+        }
+      }
+    },
     "Folders are your own Live TV groups. A channel can be in several folders and stays in its original group too. Swipe left on a folder to delete it.": {
       "localizations": {
         "es": {
@@ -5482,40 +5516,6 @@
         }
       }
     },
-    "STARTING NOW · %@": {
-      "localizations": {
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "EMPIEZA AHORA · %@"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "BEGINNT JETZT · %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "COMMENCE MAINTENANT · %@"
-          }
-        },
-        "pt-PT": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A COMEÇAR AGORA · %@"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ZACZYNA SIĘ TERAZ · %@"
-          }
-        }
-      }
-    },
     "Save token": {
       "localizations": {
         "es": {
@@ -5958,6 +5958,40 @@
         }
       }
     },
+    "Starts in %lld min": {
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empieza en %lld min"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beginnt in %lld Min."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commence dans %lld min"
+          }
+        },
+        "pt-PT": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Começa daqui a %lld min"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zaczyna się za %lld min"
+          }
+        }
+      }
+    },
     "Stereo": {
       "localizations": {
         "es": {
@@ -6196,36 +6230,36 @@
         }
       }
     },
-    "Tap a programme that hasn't started in the guide, then Remind me. You're notified 30 seconds before it begins, even when Tellio is closed.": {
+    "Tap a programme that hasn't started in the guide, or long-press a match in Sports, then Remind me. You're notified even when Tellio is closed: a programme opens Live TV to switch over, a match opens its page to pick a channel.": {
       "localizations": {
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toca en la guía un programa que no haya empezado y luego Recordármelo. Recibirás un aviso 30 segundos antes de que empiece, aunque Tellio esté cerrado."
+            "value": "Toca en la guía un programa que no haya empezado, o mantén pulsado un partido en Deportes, y luego Recordármelo. Recibirás un aviso aunque Tellio esté cerrado: un programa abre TV en directo para cambiar de canal; un partido abre su página para elegir canal."
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tippe im Programm auf eine Sendung, die noch nicht begonnen hat, dann auf Erinnern. Du wirst 30 Sekunden vor Beginn benachrichtigt, auch wenn Tellio geschlossen ist."
+            "value": "Tippe im Programm auf eine Sendung, die noch nicht begonnen hat, oder halte ein Spiel unter Sport gedrückt, dann auf Erinnern. Du wirst auch benachrichtigt, wenn Tellio geschlossen ist: Eine Sendung öffnet Live-TV zum Umschalten, ein Spiel seine Seite zur Senderwahl."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Touchez dans le guide un programme qui n'a pas commencé, puis Me le rappeler. Vous êtes prévenu 30 secondes avant le début, même quand Tellio est fermé."
+            "value": "Touchez dans le guide un programme qui n'a pas commencé, ou appuyez longuement sur un match dans Sports, puis Me rappeler. Vous êtes prévenu même quand Tellio est fermé : un programme ouvre la TV en direct pour changer de chaîne, un match ouvre sa page pour choisir la chaîne."
           }
         },
         "pt-PT": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toque no guia num programa que ainda não começou e depois em Lembrar-me. É notificado 30 segundos antes de começar, mesmo com o Tellio fechado."
+            "value": "Toque no guia num programa que ainda não começou, ou mantenha premido um jogo em Desporto, e depois em Lembrar-me. É notificado mesmo com o Tellio fechado: um programa abre a TV em direto para mudar de canal, um jogo abre a sua página para escolher o canal."
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stuknij w przewodniku program, który się jeszcze nie zaczął, a potem Przypomnij. Dostaniesz powiadomienie 30 sekund przed początkiem, nawet gdy Tellio jest zamknięty."
+            "value": "Stuknij w przewodniku program, który się jeszcze nie zaczął, albo przytrzymaj mecz w zakładce Sport, a potem Przypomnij mi. Dostaniesz powiadomienie, nawet gdy Tellio jest zamknięty: program otwiera TV na żywo, by przełączyć kanał, a mecz otwiera swoją stronę, by wybrać kanał."
           }
         }
       }
