@@ -35,6 +35,14 @@ Tellio plays what **you** bring: your IPTV provider's login for live TV, and you
 
 Tellio isn't on the App Store. Each [release](https://github.com/MS2620/tellio-iOS/releases) has an unsigned **Tellio.ipa**. Install it with a sideloading tool that signs apps with your own Apple ID, such as [Sideloadly](https://sideloadly.io), [AltStore](https://altstore.io) or [SideStore](https://sidestore.io).
 
+**SideStore, AltStore and LiveContainer:** add this source to install Tellio from inside the app and get each new build as an update:
+
+```
+https://raw.githubusercontent.com/MS2620/tellio-iOS/altstore/altstore.json
+```
+
+It lists the 10 newest builds and is updated after each one is published. The Apple TV app has its own source; see [Tellio for Apple TV](https://github.com/MS2620/tellio#install).
+
 With a free Apple ID, sideloaded apps stop opening after 7 days until they're signed again; AltStore and SideStore can do this for you. A paid developer account lasts a year. Installing a newer build over the old one keeps your settings.
 
 ## Known limitations

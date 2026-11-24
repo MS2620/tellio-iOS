@@ -145,3 +145,23 @@ jobs:
             --title "$TITLE" \
             --notes-file notes.md \
             --prerelease
+
+      # The AltStore-format source that SideStore, AltStore and LiveContainer read, listing the
+      # newest builds. It lives alone on the altstore branch, so its raw address always holds a
+      # complete file: https://raw.githubusercontent.com/MS2620/tellio-iOS/altstore/altstore.json
+      - name: Update the AltStore source
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth=1 origin altstore; then
+            git worktree add -B altstore feed FETCH_HEAD
+          else
+            git worktree add --detach feed
+            git -C feed switch --orphan altstore
+          fi
+          python3 Scripts/altstore-source.py ios Tellio.ipa "build-${{ github.run_number }}" notes.md \
+            feed/altstore.json feed/altstore.json
+          git -C feed add altstore.json
+          git -C feed commit -q -m "altstore.json for build ${{ github.run_number }}"
+          git -C feed push origin altstore
